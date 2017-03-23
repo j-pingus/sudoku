@@ -11,7 +11,7 @@ public class ExcellFileTest {
     File excel;
 
     @Before
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         mat = MatriceFile.read(getClass().getResourceAsStream(
                 "../sample.sudoku"));
         excel = new File("target",

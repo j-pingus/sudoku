@@ -2,18 +2,13 @@ package gee.sudoku;
 
 import gee.sudoku.krn.Cell;
 import gee.sudoku.krn.MatriceZone;
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class MatriceZoneTest extends TestCase {
+public class MatriceZoneTest {
 	MatriceZone test;
 
-	protected void setUp() throws Exception {
-
-	}
-
-	protected void tearDown() throws Exception {
-	}
-
+	@Test
 	public void testFindChoiceCell() {
 		test = new MatriceZone("Test");
 		test.addCell(new Cell(9, 0, 0, 9));
@@ -29,7 +24,7 @@ public class MatriceZoneTest extends TestCase {
 		assertEquals(1, test.findChoice(new Cell(9, 0, 0, 2, 4)).size());
 		assertTrue(true);
 	}
-
+	@Test
 	public void testFindChoiceIntArray() {
 		test = new MatriceZone("Test");
 		test.addCell(new Cell(9, 0, 0, 9));
