@@ -304,53 +304,7 @@ public class Solver {
 		return ret;
 	}
 
-	public boolean soleOption(MatriceZone zone) {
-		boolean ret = false;
-		for (Cell c : zone.getCells()) {
-			if (c.countChoices() == 1) {
-				mat.setValue(c, c.getChoices()[0]);
-				showMessage(Strategies.SOLE_OPTION, c);
-				show();
-				ret = true;
-				break;
-			}
-			if (!ret)
-				for (int value : c.getChoices()) {
-					if (zone.countChoice(value) == 1) {
-						if (!zone.hasValue(value)) {
-							mat.setValue(c, value);
-							showMessage(Strategies.SOLE_OPTION, zone
-									.getCellsArray());
-							show();
-							ret = true;
-							break;
-						}
-					}
-				}
-		}
-		return ret;
-	}
 
-	public boolean hiddenPair(MatriceZone zone) {
-		boolean ret = false;
-		if (zone.getChoices().length > 2) {
-			int zoneChoices[] = Combinatory.getInts(zone.getChoices());
-			int[][] pairs = Combinatory.getPairs(zoneChoices);
-			for (int pair[] : pairs) {
-				Vector<Cell> options = zone.findCellsWithAnyChoice(pair);
-				if (options.size() == 2) {
-					for (Cell subLoopCell : options) {
-						ret = mat.removeOtherChoices(subLoopCell, pair) | ret;
-					}
-					if (ret) {
-						showMessage(Strategies.HIDDEN_PAIR, options
-								.toArray(new Cell[0]));
-					}
-				}
-			}
-		}
-		return ret;
-	}
 
 	public boolean nakedPair(MatriceZone zone) {
 		boolean ret = false;

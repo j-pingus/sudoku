@@ -17,7 +17,10 @@ public class ActionStep {
 		return value;
 	}
 
-	public ActionStep() {
+	public ActionStep(ActionType action,CellReference ref, int value) {
+		this.action=action;
+		this.cellReference=ref;
+		this.value=value;
 	}
 
 	@Override
