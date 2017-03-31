@@ -14,17 +14,14 @@ public class MatriceHistory implements Cloneable {
 
 
 	public void log(ActionType action, CellReference ref, int value) {
-		ActionStep a = new ActionStep();
-		a.action = action;
-		a.cellReference = ref;
-		a.value = value;
-		getCurrentAction().steps.add(a);
+		ActionStep a = new ActionStep(action,ref,value);
+		getCurrentAction().add(a);
 		log.debug(String.format(" -=- %s %d (r%d:c%d) -=-", action, value, ref
 				.getRow(), ref.getCol()));
 	}
 
 	public void commit(Strategies s) {
-		if (getCurrentAction().steps.size() > 0) {
+		if (getCurrentAction().size() > 0) {
 			getCurrentAction().strategy = s;
 			undoActions.add(getCurrentAction());
 			redoActions = new Vector<MatriceAction>();
@@ -35,8 +32,7 @@ public class MatriceHistory implements Cloneable {
 
 	private MatriceAction getCurrentAction() {
 		if (currentAction == null) {
-			currentAction = new MatriceAction();
-			currentAction.steps = new Vector<ActionStep>();
+			currentAction = new MatriceAction(Strategies.HUMAN);
 		}
 		return currentAction;
 	}
@@ -60,25 +56,7 @@ public class MatriceHistory implements Cloneable {
 		try {
 			if (undoActions.size() > 0) {
 				MatriceAction a = undoActions.lastElement();
-				for (ActionStep step : a.steps) {
-					switch (step.action) {
-					case UNSET_VALUE:
-						mat.setValue(step.cellReference.row, step.cellReference.col, step.value);
-						break;
-					case SET_VALUE:
-						mat.unsetValue(step.cellReference.row, step.cellReference.col);
-					case REMOVE_OPTION:
-						// remove option
-						mat.addChoice(step.cellReference.row, step.cellReference.col, step.value);
-						break;
-					case ADD_OPTION:
-						// add option
-						mat
-						.removeChoice(step.cellReference.row, step.cellReference.col,
-								step.value);
-						break;
-					}
-				}
+				a.undo(mat);
 				undoActions.removeElement(a);
 				redoActions.add(a);
 				log.info(String.format("%4d:%4d - %s", undoActions.size(), redoActions.size(),a));
@@ -95,25 +73,7 @@ public class MatriceHistory implements Cloneable {
 		try {
 			if (redoActions.size() > 0) {
 				MatriceAction a = redoActions.lastElement();
-				for (ActionStep step : a.steps) {
-					switch (step.action) {
-					case SET_VALUE:
-						mat.setValue(step.cellReference.row, step.cellReference.col, step.value);
-						break;
-					case REMOVE_OPTION:
-						// remove option
-						mat
-								.removeChoice(step.cellReference.row, step.cellReference.col,
-										step.value);
-						break;
-					case UNSET_VALUE:
-						mat.unsetValue(step.cellReference.row, step.cellReference.col);
-					case ADD_OPTION:
-						// add option
-						mat.addChoice(step.cellReference.row, step.cellReference.col, step.value);
-						break;
-					}
-				}
+				a.apply(mat);
 				redoActions.removeElement(a);
 				undoActions.add(a);
 				log.info(String.format("%4d:%4d - %S", undoActions.size(), redoActions.size(),a));

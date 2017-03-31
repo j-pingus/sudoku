@@ -24,7 +24,8 @@ public class HiddenPair extends AbstractZoneStrategy {
                     for (Cell subLoopCell : options) {
                         action.removeOtherChoices(matrice, subLoopCell, pair);
                     }
-                    if(action.getSteps().size()>0){
+                    if(action.size()>0){
+                        action.setHintValues(pair);
                         return action;
                     }
                 }

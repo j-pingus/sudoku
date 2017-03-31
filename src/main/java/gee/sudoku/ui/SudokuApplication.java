@@ -2,13 +2,7 @@ package gee.sudoku.ui;
 
 import gee.sudoku.io.ExcellFile;
 import gee.sudoku.io.MatriceFile;
-import gee.sudoku.krn.ActionStep;
-import gee.sudoku.krn.ActionType;
-import gee.sudoku.krn.MatriceAction;
-import gee.sudoku.krn.Cell;
-import gee.sudoku.krn.CellReference;
-import gee.sudoku.krn.Matrice;
-import gee.sudoku.krn.MatriceHistory;
+import gee.sudoku.krn.*;
 import gee.sudoku.solver.Solver;
 import gee.sudoku.solver.Strategies;
 
@@ -49,6 +43,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Font;
 import java.awt.Insets;
+import java.util.Arrays;
 
 public class SudokuApplication {
 	class UndoAction extends AbstractAction {
@@ -374,24 +369,17 @@ public class SudokuApplication {
 
 			});
 			try {
-				if (solver.processZones() || solver.processMatrice()) {
-					MatriceAction a = matrice.getHistory().undo(matrice);
-					show(matrice);
+				MatriceAction action = solver.getNextAction();
+				if(action != null){
 					highlight(0);
-					int value = a.getSteps().get(0).getValue();
-					for (ActionStep s : a.getSteps()) {
-						if (s.getAction() == ActionType.SET_VALUE) {
-							value = s.getValue();
+					for(MatriceZone zone:action.getHints()){
+						for(Cell cell:zone.getCells()){
+							highlight(Color.GREEN,cell);
 						}
 					}
-					highlight(value);
-					for (ActionStep s : a.getSteps()) {
-						highlight(Color.green,s.getCellReference());
-					}
-					strategyNameLabel.setText(a.getStrategy().toString()+"\n"+a.getStrategy().getDescription());
-					valueLabel.setText("" + value);
-					referencesLabel.setText(a.getSteps().toString().replaceAll(
-							", ", ",\r\n"));
+					strategyNameLabel.setText(action.getStrategy().toString()+"\n"+action.getStrategy().getDescription());
+					valueLabel.setText(Arrays.toString(action.getHintValues()));
+					referencesLabel.setText(action.size()+" will be steps applied");
 					hintDialog.pack();
 					getHintDialog().setVisible(true);
 				}else{

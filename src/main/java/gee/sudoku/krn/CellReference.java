@@ -17,7 +17,28 @@ package gee.sudoku.krn;
  * 
  */
 public class CellReference {
-	int row, col;
+	int row;
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		CellReference that = (CellReference) o;
+
+		if (row != that.row) return false;
+		return col == that.col;
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = row;
+		result = 31 * result + col;
+		return result;
+	}
+
+	int col;
 
 	public CellReference(int row, int col) {
 		this.row = row;

@@ -13,7 +13,7 @@ public class SoleOption extends AbstractZoneStrategy {
         for (Cell c : zone.getCells()) {
             for (int value : c.getChoices()) {
                 if (c.countChoices() == 1 || zone.countChoice(value) == 1) {
-                    return new MatriceAction(Strategies.SOLE_OPTION).setValue(mat, c, value);
+                    return new MatriceAction(Strategies.SOLE_OPTION,zone).setValue(mat, c, value);
                 }
             }
         }
