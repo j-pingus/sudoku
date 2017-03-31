@@ -20,7 +20,7 @@ public class HiddenPair extends AbstractZoneStrategy {
             for (int pair[] : pairs) {
                 Vector<Cell> options = zone.findCellsWithAnyChoice(pair);
                 if (options.size() == 2) {
-                    MatriceAction action = new MatriceAction(Strategies.HIDDEN_PAIR);
+                    MatriceAction action = new MatriceAction(Strategies.HIDDEN_PAIR,zone);
                     for (Cell subLoopCell : options) {
                         action.removeOtherChoices(matrice, subLoopCell, pair);
                     }

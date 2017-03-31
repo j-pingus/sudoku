@@ -352,7 +352,6 @@ public class SudokuFrame extends Frame implements ComponentListener,
 			if (arg0.getKeyChar() == 18) {
 				Solver solve = new Solver(mat);
 				solve.setSilent(false);
-				solve.setPresentation(this);
 				try {
 					solve.solve();
 				} catch (Exception e) {

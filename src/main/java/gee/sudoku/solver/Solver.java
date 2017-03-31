@@ -83,6 +83,8 @@ public class Solver {
 
     private void registerStrategies() {
         strategies.add(new SoleOption());
+        strategies.add(new NakedPair());
+        strategies.add(new NakedTriplet());
         strategies.add(new HiddenPair());
     }
 
@@ -280,8 +282,8 @@ public class Solver {
         boolean ret = false;
         for (MatriceZone zone : mat.getZones()) {
             //ret = ret || soleOption(zone);
-            ret = ret || nakedPair(zone);
-            ret = ret || nakedTriplet(zone);
+            //ret = ret || nakedPair(zone);
+            //ret = ret || nakedTriplet(zone);
             ret = ret || nakedQuad(zone);
             //ret = ret || hiddenPair(zone);
             ret = ret || hiddenTriplet(zone);
@@ -293,54 +295,7 @@ public class Solver {
     }
 
 
-    public boolean nakedPair(MatriceZone zone) {
-        boolean ret = false;
-        // Naked pair
-        for (Cell cell : zone.getOptionCells())
-            if (cell.getChoices().length == 2) {
-                Vector<Cell> options = zone.findChoice(cell);
-                if (options.size() == 2) {
-                    for (Cell subLoopCell : zone.getCells()) {
-                        if (!options.contains(subLoopCell)) {
-                            for (int value : cell.getChoices()) {
-                                ret = mat.removeChoices(subLoopCell, value)
-                                        || ret;
-                            }
-                        }
-                    }
-                    if (ret) {
-                        showMessage(Strategies.NAKED_PAIR, options
-                                .toArray(new Cell[0]));
-                        ret = false;
-                    }
-                }
-            }
-        return ret;
-    }
 
-    public boolean nakedTriplet(MatriceZone zone) {
-        boolean ret = false;
-        // Naked triplet
-        if (zone.getChoices().length > 3) {
-            int zoneChoices[] = Combinatory.getInts(zone.getChoices());
-            int[][] triplets = Combinatory.getTriplets(zoneChoices);
-            for (int triplet[] : triplets) {
-                Vector<Cell> options = zone.findCellsWithChoices(triplet);
-                if (options.size() == 3) {
-                    for (Cell subLoopCell : zone.getOptionCells()) {
-                        if (!options.contains(subLoopCell)) {
-                            ret = mat.removeChoices(subLoopCell, triplet) | ret;
-                        }
-                    }
-                    if (ret) {
-                        showMessage(Strategies.NAKED_TRIPLET, options
-                                .toArray(new Cell[0]));
-                    }
-                }
-            }
-        }
-        return ret;
-    }
 
     public boolean hiddenTriplet(MatriceZone zone) {
         boolean ret = false;

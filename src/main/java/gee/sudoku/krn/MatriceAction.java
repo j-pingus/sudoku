@@ -2,6 +2,8 @@ package gee.sudoku.krn;
 
 import gee.sudoku.solver.Strategies;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 public class MatriceAction {
@@ -9,6 +11,12 @@ public class MatriceAction {
     private Vector<ActionStep> steps;
     private MatriceZone[] hints;
     private int[] hintValues;
+
+    public MatriceAction(Strategies strategy, MatriceZone... hints) {
+        this.steps = new Vector<ActionStep>();
+        this.strategy = strategy;
+        this.hints = hints;
+    }
 
     public int[] getHintValues() {
         return hintValues;
@@ -23,20 +31,16 @@ public class MatriceAction {
         return hints;
     }
 
-    public MatriceAction(Strategies strategy,MatriceZone ... hints) {
-        this.steps = new Vector<ActionStep>();
-        this.strategy = strategy;
-        this.hints =  hints;
-    }
-
     public Strategies getStrategy() {
         return strategy;
     }
-    public void add(ActionStep step){
-        if(!steps.contains(step)){
+
+    public void add(ActionStep step) {
+        if (!steps.contains(step)) {
             steps.add(step);
         }
     }
+
     @Override
     public String toString() {
         StringBuilder b = new StringBuilder();
@@ -53,41 +57,42 @@ public class MatriceAction {
             if (mat.getCell(ref).hasChoice(value)) {
                 add(new ActionStep(ActionType.SET_VALUE, ref, value));
                 removeOtherChoices(mat, ref, value);
-                removeChoice(mat, mat.getRow(ref), value);
-                removeChoice(mat, mat.getCol(ref), value);
-                removeChoice(mat, mat.getSquare(ref), value);
+                removeChoices(mat, mat.getRow(ref), value);
+                removeChoices(mat, mat.getCol(ref), value);
+                removeChoices(mat, mat.getSquare(ref), value);
             }
         }
         return this;
     }
 
-    public void removeOtherChoices(Matrice mat, CellReference ref, int ... values) {
+    public void removeOtherChoices(Matrice mat, CellReference ref, int... values) {
         for (int other : mat.getCell(ref).getOtherChoices(values)) {
-            removeChoice(mat, ref, other);
+            removeChoices(mat, ref, other);
         }
     }
 
-    private void removeOtherChoices(Matrice mat, MatriceZone zone, int ... values) {
+    public void removeOtherChoices(Matrice mat, MatriceZone zone, int... values) {
         for (Cell ref : zone.getCells()) {
             removeOtherChoices(mat, ref, values);
         }
     }
 
-    private void removeChoice(Matrice mat, MatriceZone zone, int  value) {
+    public void removeChoices(Matrice mat, MatriceZone zone, int... values) {
         for (Cell ref : zone.getCells()) {
-            removeChoice(mat, ref, value);
+            removeChoices(mat, ref, values);
         }
     }
 
-    private MatriceAction removeChoice(Matrice mat, CellReference ref, int value) {
-        if (mat.getCell(ref).hasChoice(value)) {
-            add(new ActionStep(ActionType.REMOVE_OPTION, ref, value));
-        }
+    private MatriceAction removeChoices(Matrice mat, CellReference ref, int... values) {
+        for (int value : values)
+            if (mat.getCell(ref).hasChoice(value)) {
+                add(new ActionStep(ActionType.REMOVE_OPTION, ref, value));
+            }
         return this;
     }
 
     public void apply(Matrice mat) {
-        for(ActionStep step:steps){
+        for (ActionStep step : steps) {
             step.apply(mat);
         }
     }
@@ -97,8 +102,21 @@ public class MatriceAction {
     }
 
     public void undo(Matrice mat) {
-        for(ActionStep step:steps){
+        for (ActionStep step : steps) {
             step.undo(mat);
+        }
+    }
+
+    public void doNotTouch(CellReference ... cellReferences) {
+        List<ActionStep> toRemove = new ArrayList<>();
+        for(ActionStep step:steps){
+            for(CellReference cellReference:cellReferences) {
+                if (step.cellReference.equals(cellReference))
+                    toRemove.add(step);
+            }
+        }
+        for(ActionStep step:toRemove){
+            steps.remove(step);
         }
     }
 }
