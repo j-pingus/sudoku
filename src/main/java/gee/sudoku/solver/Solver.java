@@ -83,9 +83,12 @@ public class Solver {
 
     private void registerStrategies() {
         strategies.add(new SoleOption());
-        strategies.add(new NakedPair());
-        strategies.add(new NakedTriplet());
-        strategies.add(new HiddenPair());
+        strategies.add(new NakedTuple(2, Strategies.NAKED_PAIR));
+        strategies.add(new NakedTuple(3, Strategies.NAKED_TRIPLET));
+        strategies.add(new NakedTuple(4, Strategies.NAKED_QUAD));
+        strategies.add(new HiddenTuple(2, Strategies.HIDDEN_PAIR));
+        strategies.add(new HiddenTuple(3, Strategies.HIDDEN_TRIPLET));
+        strategies.add(new HiddenTuple(4, Strategies.HIDDEN_QUAD));
     }
 
     public void loop() {
@@ -209,9 +212,7 @@ public class Solver {
     }
 
     public boolean confirmGuess() {
-        if (!guessing)
-            return false;
-        return true;
+        return guessing;
     }
 
     public Matrice solve() throws Exception {
@@ -284,9 +285,9 @@ public class Solver {
             //ret = ret || soleOption(zone);
             //ret = ret || nakedPair(zone);
             //ret = ret || nakedTriplet(zone);
-            ret = ret || nakedQuad(zone);
+            //ret = ret || nakedQuad(zone);
             //ret = ret || hiddenPair(zone);
-            ret = ret || hiddenTriplet(zone);
+            //ret = ret || hiddenTriplet(zone);
             ret = ret || hiddenQuad(zone);
             ret = ret || hiddenQuint(zone);
             mat.check(false);
@@ -297,26 +298,6 @@ public class Solver {
 
 
 
-    public boolean hiddenTriplet(MatriceZone zone) {
-        boolean ret = false;
-        // Hidden triplet
-        if (zone.getChoices().length >= 3) {
-            int zoneChoices[] = Combinatory.getInts(zone.getChoices());
-            int[][] triplets = Combinatory.getTriplets(zoneChoices);
-            for (int triplet[] : triplets) {
-                Vector<Cell> options = zone.findCellsWithAnyChoice(triplet);
-                if (options.size() == 3) {
-                    for (Cell c : options)
-                        ret = mat.removeOtherChoices(c, triplet) | ret;
-                    if (ret) {
-                        showMessage(Strategies.HIDDEN_TRIPLET, options
-                                .toArray(new Cell[0]));
-                    }
-                }
-            }
-        }
-        return ret;
-    }
 
     // private boolean checkTriplets(Vector<Cell> cells, int triplet[]) {
     // boolean ret = true;
@@ -341,30 +322,6 @@ public class Solver {
     // return ret;
     // }
 
-    public boolean nakedQuad(MatriceZone zone) {
-        // Naked quad
-        boolean ret = false;
-        if (zone.getChoices().length > 4) {
-            int zoneChoices[] = Combinatory.getInts(zone.getChoices());
-            int[][] quads = Combinatory.getQuads(zoneChoices);
-            for (int quad[] : quads) {
-                Vector<Cell> options = zone.findCellsWithChoices(quad);
-                if (options.size() == 4) {
-
-                    for (Cell subLoopCell : zone.getOptionCells()) {
-                        if (!options.contains(subLoopCell)) {
-                            ret = mat.removeChoices(subLoopCell, quad) | ret;
-                        }
-                    }
-                    if (ret) {
-                        showMessage(Strategies.NAKED_QUAD, options
-                                .toArray(new Cell[0]));
-                    }
-                }
-            }
-        }
-        return ret;
-    }
 
     public boolean nakedQuint(MatriceZone zone) {
         // Naked quad

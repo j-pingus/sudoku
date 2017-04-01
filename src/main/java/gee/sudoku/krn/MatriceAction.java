@@ -22,6 +22,14 @@ public class MatriceAction {
         return hintValues;
     }
 
+    public MatriceAction setHintValues(Integer... hintValues) {
+        this.hintValues = new int[hintValues.length];
+        int i = 0;
+        for (int val : hintValues)
+            this.hintValues[i++] = val;
+        return this;
+    }
+
     public MatriceAction setHintValues(int... hintValues) {
         this.hintValues = hintValues;
         return this;
@@ -83,6 +91,13 @@ public class MatriceAction {
         }
     }
 
+    public void removeChoices(Matrice mat, MatriceZone zone, Integer... values) {
+        for (Cell ref : zone.getCells()) {
+            for (int value : values)
+                removeChoices(mat, ref, value);
+        }
+    }
+
     private MatriceAction removeChoices(Matrice mat, CellReference ref, int... values) {
         for (int value : values)
             if (mat.getCell(ref).hasChoice(value)) {
@@ -107,15 +122,15 @@ public class MatriceAction {
         }
     }
 
-    public void doNotTouch(CellReference ... cellReferences) {
+    public void doNotTouch(CellReference... cellReferences) {
         List<ActionStep> toRemove = new ArrayList<>();
-        for(ActionStep step:steps){
-            for(CellReference cellReference:cellReferences) {
+        for (ActionStep step : steps) {
+            for (CellReference cellReference : cellReferences) {
                 if (step.cellReference.equals(cellReference))
                     toRemove.add(step);
             }
         }
-        for(ActionStep step:toRemove){
+        for (ActionStep step : toRemove) {
             steps.remove(step);
         }
     }

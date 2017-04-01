@@ -9,19 +9,25 @@ import gee.sudoku.krn.MatriceZone;
 import java.util.Vector;
 
 /**
- * Created by gerald on 31/03/17.
+ * Created by gerald on 01/04/17.
  */
-public class NakedTriplet extends AbstractZoneStrategy {
+public class HiddenTuple extends AbstractZoneStrategy {
+    int size;
+    Strategies name;
+
+    public HiddenTuple(int size, Strategies name) {
+        this.size = size;
+        this.name = name;
+    }
     @Override
     public MatriceAction getAction(Matrice matrice, MatriceZone zone) {
-        // Naked triplet
-        if (zone.getChoices().length > 3) {
+        if (zone.getChoices().length >= size) {
             int zoneChoices[] = Combinatory.getInts(zone.getChoices());
-            int[][] triplets = Combinatory.getTriplets(zoneChoices);
+            int[][] triplets = Combinatory.getTuples(size, zoneChoices);
             for (int triplet[] : triplets) {
-                Vector<Cell> options = zone.findCellsWithChoices(triplet);
-                if (options.size() == 3) {
-                    MatriceAction matriceAction = new MatriceAction(Strategies.NAKED_TRIPLET, zone);
+                Vector<Cell> options = zone.findCellsWithAnyChoice(triplet);
+                if (options.size() == size) {
+                    MatriceAction matriceAction = new MatriceAction(name, zone);
                     matriceAction.removeChoices(matrice, zone, triplet);
                     for (Cell cell : options) {
                         matriceAction.doNotTouch(cell);
@@ -34,13 +40,6 @@ public class NakedTriplet extends AbstractZoneStrategy {
                 }
             }
         }
-    return null;
-
+        return null;
     }
-
-    public boolean nakedTriplet(MatriceZone zone) {
-        boolean ret = false;
-        return ret;
-    }
-
 }
