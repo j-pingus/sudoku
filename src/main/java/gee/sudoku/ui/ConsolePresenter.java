@@ -36,7 +36,7 @@ public class ConsolePresenter implements SudokuPresenter {
 
 	}
 
-	public void show(Matrice m) {
+	public void showMatrice() {
 		// TODO Auto-generated method stub
 		// System.out.println(m);
 	}

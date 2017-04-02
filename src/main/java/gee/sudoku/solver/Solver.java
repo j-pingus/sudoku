@@ -75,12 +75,6 @@ public class Solver {
         System.out.println(logger);
     }
 
-    public void appliedStrategy(Strategies s) {
-        if (!appliedStrategies.contains(s))
-            appliedStrategies.add(s);
-        mat.commit(s);
-    }
-
     private void registerStrategies() {
         strategies.add(new SoleOption());
         strategies.add(new NakedTuple(2, Strategies.NAKED_PAIR));
@@ -89,6 +83,9 @@ public class Solver {
         strategies.add(new HiddenTuple(2, Strategies.HIDDEN_PAIR));
         strategies.add(new HiddenTuple(3, Strategies.HIDDEN_TRIPLET));
         strategies.add(new HiddenTuple(4, Strategies.HIDDEN_QUAD));
+        strategies.add(new Candidates());
+        strategies.add(new XWingRow());
+        strategies.add(new XWingCol());
     }
 
     public void loop() {
@@ -109,108 +106,6 @@ public class Solver {
         return null;
     }
 
-
-    public boolean xWing() {
-        return xWingRow() || xWingCol();
-    }
-
-    public boolean xWingRow() {
-        boolean ret = false;
-        for (MatriceZone row : mat.getRows()) {
-            for (int value : row.getChoices()) {
-                if (row.countChoice(value) == 2) {
-                    for (MatriceZone row2 : mat.getRows()) {
-                        if (row2 != row) {
-                            if (row2.countChoice(value) == 2) {
-                                Vector<Cell> p = row.findChoice(value);
-                                if (row2.getCells().get(p.get(0).getCol())
-                                        .hasChoice(value)) {
-                                    if (row2.getCells().get(p.get(1).getCol())
-                                            .hasChoice(value)) {
-                                        Vector<Cell> xWing = new Vector<Cell>();
-                                        xWing.addAll(p);
-                                        xWing.addAll(row2.findChoice(value));
-                                        for (Cell c : mat.getCols()[p.get(0)
-                                                .getCol()].getOptionCells()) {
-                                            if (!xWing.contains(c))
-                                                ret = mat.removeChoices(c,
-                                                        value)
-                                                        || ret;
-                                        }
-                                        for (Cell c : mat.getCols()[p.get(1)
-                                                .getCol()].getOptionCells()) {
-                                            if (!xWing.contains(c))
-                                                ret = mat.removeChoices(c,
-                                                        value)
-                                                        || ret;
-                                        }
-                                        if (ret) {
-                                            showMessage(Strategies.X_WING_ROW,
-                                                    xWing.toArray(new Cell[0]));
-                                            return true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return ret;
-    }
-
-    public boolean xWingCol() {
-        boolean ret = false;
-        for (MatriceZone col : mat.getCols()) {
-            for (int value : col.getChoices()) {
-                if (col.countChoice(value) == 2) {
-                    for (MatriceZone col2 : mat.getCols()) {
-                        if (col2 != col) {
-                            if (col2.countChoice(value) == 2) {
-                                Vector<Cell> p = col.findChoice(value);
-                                if (col2.getCells().get(p.get(0).getRow())
-                                        .hasChoice(value)) {
-                                    if (col2.getCells().get(p.get(1).getRow())
-                                            .hasChoice(value)) {
-                                        Vector<Cell> xWing = new Vector<Cell>();
-                                        xWing.addAll(p);
-                                        xWing.addAll(col2.findChoice(value));
-                                        for (Cell c : mat.getRows()[p.get(0)
-                                                .getRow()].getOptionCells()) {
-                                            if (!xWing.contains(c))
-                                                ret = mat.removeChoices(c,
-                                                        value)
-                                                        || ret;
-                                        }
-                                        for (Cell c : mat.getRows()[p.get(1)
-                                                .getRow()].getOptionCells()) {
-                                            if (!xWing.contains(c))
-                                                ret = mat.removeChoices(c,
-                                                        value)
-                                                        || ret;
-                                        }
-                                        if (ret) {
-                                            showMessage(Strategies.X_WING_COL,
-                                                    xWing.toArray(new Cell[0]));
-                                            return true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return ret;
-    }
-
-    public void showMessage(Strategies s, CellReference... cellReferences) {
-        appliedStrategy(s);
-        return;
-    }
-
     public boolean confirmGuess() {
         return guessing;
     }
@@ -224,14 +119,14 @@ public class Solver {
                 Cell c1 = chooseCell(mat);
                 if (c1 != null) {
                     // System.out.print(c1.toStringExtended());
-                    mat.setValue(c1, c1.getChoices()[0]);
-                    mat.commit(Strategies.GUESSING_FIRST);
+                    //mat.setValue(c1, c1.getChoices()[0]);
+                    //mat.commit(Strategies.GUESSING_FIRST);
                     // System.out.println(" --> " + c1);
                     mat.setThrowing(false);
                     c1 = chooseCell(mat2);
                     // System.out.println(c1.toStringExtended());
-                    mat2.setValue(c1, c1.getChoices()[1]);
-                    mat2.commit(Strategies.GUESSING_SECOND);
+                    //mat2.setValue(c1, c1.getChoices()[1]);
+                    //mat2.commit(Strategies.GUESSING_SECOND);
                     mat2.setThrowing(false);
                     Solver solver = new Solver(mat2);
                     solver.setSilent(isSilent());
@@ -273,199 +168,6 @@ public class Solver {
                 if (cell.getChoices().length == 2)
                     return cell;
         return null;
-    }
-
-    public boolean processMatrice$() throws Exception {
-        return candidates() || xWing();
-    }
-
-    public boolean processZones$() throws Exception {
-        boolean ret = false;
-        for (MatriceZone zone : mat.getZones()) {
-            //ret = ret || soleOption(zone);
-            //ret = ret || nakedPair(zone);
-            //ret = ret || nakedTriplet(zone);
-            //ret = ret || nakedQuad(zone);
-            //ret = ret || hiddenPair(zone);
-            //ret = ret || hiddenTriplet(zone);
-            ret = ret || hiddenQuad(zone);
-            ret = ret || hiddenQuint(zone);
-            mat.check(false);
-        }
-        return ret;
-    }
-
-
-
-
-
-    // private boolean checkTriplets(Vector<Cell> cells, int triplet[]) {
-    // boolean ret = true;
-    // // // remove two choices that are identicals;
-    // // if ((cells.get(0).hasChoices(
-    // // Combinatory.getInts(cells.get(1).getChoices())) || cells.get(0)
-    // // .hasChoices(Combinatory.getInts(cells.get(1).getChoices())))
-    // // && cells.get(0).countChoicesNotFrom(triplet) != 0) {
-    // //
-    // // return false;
-    // // }
-    // // if ((cells.get(2).hasChoices(Combinatory.getInts(cells.get(1)
-    // // .getChoices())))
-    // // && cells.get(2).countChoicesNotFrom(triplet) != 0) {
-    // // return false;
-    // // }
-    // int notin = 0;
-    // for (Cell c : cells) {
-    // notin += c.countChoicesNotFrom(triplet);
-    // }
-    // ret = notin < 2;
-    // return ret;
-    // }
-
-
-    public boolean nakedQuint(MatriceZone zone) {
-        // Naked quad
-        boolean ret = false;
-        if (zone.getChoices().length > 5) {
-            int zoneChoices[] = Combinatory.getInts(zone.getChoices());
-            int[][] quints = Combinatory.getQuints(zoneChoices);
-            for (int quint[] : quints) {
-                Vector<Cell> options = zone.findCellsWithChoices(quint);
-                if (options.size() == 5) {
-
-                    for (Cell subLoopCell : zone.getOptionCells()) {
-                        if (!options.contains(subLoopCell)) {
-                            ret = mat.removeChoices(subLoopCell, quint) | ret;
-                        }
-                    }
-                    if (ret) {
-                        showMessage(Strategies.NAKED_QUINT, options
-                                .toArray(new Cell[0]));
-                    }
-                }
-            }
-        }
-        return ret;
-    }
-
-    public boolean nakedSexte(MatriceZone zone) {
-        boolean ret = false;
-        if (zone.getChoices().length > 6) {
-            int zoneChoices[] = Combinatory.getInts(zone.getChoices());
-            int[][] sextes = Combinatory.getSextes(zoneChoices);
-            for (int sexte[] : sextes) {
-                Vector<Cell> options = zone.findCellsWithChoices(sexte);
-                if (options.size() == 6) {
-
-                    for (Cell subLoopCell : zone.getOptionCells()) {
-                        if (!options.contains(subLoopCell)) {
-                            ret = mat.removeChoices(subLoopCell, sexte) | ret;
-                        }
-                    }
-                    if (ret) {
-                        showMessage(Strategies.NAKED_SEXTE, options
-                                .toArray(new Cell[0]));
-                    }
-                }
-            }
-        }
-        return ret;
-    }
-
-    public boolean hiddenQuad(MatriceZone zone) {
-        // Naked quad
-        boolean ret = false;
-        if (zone.getChoices().length >= 4) {
-            int zoneChoices[] = Combinatory.getInts(zone.getChoices());
-            int[][] quads = Combinatory.getQuads(zoneChoices);
-            for (int quad[] : quads) {
-                Vector<Cell> options = zone.findCellsWithAnyChoice(quad);
-                if (options.size() == 4) {
-                    for (Cell c : options)
-                        ret = mat.removeOtherChoices(c, quad) | ret;
-                    if (ret) {
-                        showMessage(Strategies.HIDDEN_QUAD, options
-                                .toArray(new Cell[0]));
-                    }
-                }
-            }
-        }
-        return ret;
-    }
-
-    public boolean hiddenQuint(MatriceZone zone) {
-        // Naked quad
-        boolean ret = false;
-        if (zone.getChoices().length > 5) {
-            int zoneChoices[] = Combinatory.getInts(zone.getChoices());
-            int[][] quints = Combinatory.getQuints(zoneChoices);
-            for (int quint[] : quints) {
-                Vector<Cell> options = zone.findCellsWithAnyChoice(quint);
-                if (options.size() == 5) {
-                    for (Cell c : options)
-                        ret = mat.removeOtherChoices(c, quint) | ret;
-                    if (ret) {
-                        showMessage(Strategies.HIDDEN_QUINT, options
-                                .toArray(new Cell[0]));
-                    }
-                }
-            }
-        }
-        return ret;
-    }
-
-    public boolean candidates() {
-        boolean ret = false;
-        for (MatriceZone squares[] : mat.getSquares()) {
-            for (MatriceZone square : squares) {
-                Integer choices[] = square.getChoices();
-                for (int choice : choices) {
-                    Vector<Cell> cells = square.findChoice(choice);
-                    int row = cells.get(0).getRow();
-                    int col = cells.get(0).getCol();
-                    boolean rowFound = true;
-                    boolean colFound = true;
-                    for (Cell cell : cells) {
-                        if (cell.getCol() != col)
-                            colFound = false;
-                        if (cell.getRow() != row)
-                            rowFound = false;
-                    }
-                    if (rowFound) {
-                        boolean subret = false;
-                        for (Cell c : mat.getRows()[row].getCells()) {
-                            if (!cells.contains(c))
-                                subret = mat.removeChoices(c, choice) || subret;
-                        }
-                        if (subret) {
-                            // System.out.println(choice + " in "
-                            // + square.getName());
-                            showMessage(Strategies.CANDIDATE_ROW,
-                                    mat.getRows()[row].getCellsArray());
-                            ret = true;
-                            break;
-                        }
-                    }
-                    if (colFound) {
-                        boolean subret = false;
-                        for (Cell c : mat.getCols()[col].getCells()) {
-                            if (!cells.contains(c))
-                                subret = mat.removeChoices(c, choice) || subret;
-                        }
-                        if (subret) {
-                            // System.out.println(choice + " in "
-                            // + square.getName());
-                            showMessage(Strategies.CANDIDATE_COL,
-                                    mat.getCols()[col].getCellsArray());
-                            ret = true;
-                            break;
-                        }
-                    }
-
-                }
-            }
-        }
-        return ret;
     }
 
     public boolean isGuessing() {

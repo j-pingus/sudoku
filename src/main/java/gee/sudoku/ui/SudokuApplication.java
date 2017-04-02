@@ -611,7 +611,8 @@ public class SudokuApplication {
             applyButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     //FIXME: find better way to perform the action
-                    getActiveTab().redo();
+                    getActiveTab().applyAction(getActiveTab().getHint());
+                    getActiveTab().showMatrice();
                     getActiveTab().hint();
                 }
             });
@@ -758,9 +759,14 @@ public class SudokuApplication {
          */
         private static final long serialVersionUID = 1L;
         Matrice matrice;
+        MatriceAction hint;
 
         JTabbedSudoku() {
             setCellListener(this);
+        }
+
+        public MatriceAction getHint() {
+            return hint;
         }
 
         private void superSetValue(int row, int col, int value) {
@@ -775,9 +781,7 @@ public class SudokuApplication {
             super.setHints(row, col, values);
         }
 
-        public void show(Matrice m) {
-            matrice = m;
-
+        public void showMatrice() {
             int row = 0;
             init();
             for (Cell lines[] : matrice.getCells()) {
@@ -834,48 +838,36 @@ public class SudokuApplication {
         }
 
         public void setHint(int row, int col, int value) {
-            // TODO Auto-generated method stub
-            if (matrice != null) {
-                matrice.addChoice(row, col, value);
-                if (matrice.getHistory() != null)
-                    matrice.getHistory().commit(Strategies.HUMAN);
-            }
+            new MatriceAction(Strategies.HUMAN)
+                    .addChoice(matrice, new CellReference(row, col), value)
+                    .apply(matrice);
+            showMatrice();
         }
 
         public void setValue(int row, int col, int value) {
-            // TODO Auto-generated method stub
-            if (matrice != null) {
-                matrice.setValue(row, col, value);
-                if (matrice.getHistory() != null)
-                    matrice.getHistory().commit(Strategies.HUMAN);
-                show(matrice);
-            }
+            new MatriceAction(Strategies.HUMAN)
+                    .setValue(matrice, new CellReference(row, col), value)
+                    .apply(matrice);
+            showMatrice();
         }
 
         public void unsetValue(int row, int col, int value) {
-            // TODO Auto-generated method stub
-            if (matrice != null) {
-                matrice.unsetValue(row, col, value);
-                if (matrice.getHistory() != null)
-                    matrice.getHistory().commit(Strategies.HUMAN);
-                show(matrice);
-            }
+            new MatriceAction(Strategies.HUMAN)
+                    .unsetValue(matrice, new CellReference(row, col), value)
+                    .apply(matrice);
+            showMatrice();
         }
 
         public void unsetHint(int row, int col, int value) {
-            // TODO Auto-generated method stub
-            if (matrice != null) {
-                matrice.removeChoice(row, col, value);
-                if (matrice.getHistory() != null)
-                    matrice.getHistory().commit(Strategies.HUMAN);
-            }
-
+            new MatriceAction(Strategies.HUMAN)
+                    .removeChoices(matrice, new CellReference(row, col), new int[]{value})
+                    .apply(matrice);
+            showMatrice();
         }
 
         private void newMatrice() {
             matrice = new Matrice(9);
-            matrice.setHistory(new MatriceHistory());
-            show(matrice);
+            showMatrice();
         }
 
         void open() {
@@ -901,8 +893,7 @@ public class SudokuApplication {
                 File file = fc.getSelectedFile();
                 Matrice mat = MatriceFile.read(file);
                 matrice = mat;
-                matrice.setHistory(new MatriceHistory());
-                show(mat);
+                showMatrice();
             }
 
         }
@@ -915,12 +906,12 @@ public class SudokuApplication {
 
         public void redo() {
             matrice.getHistory().redo(matrice);
-            show(matrice);
+            showMatrice();
         }
 
         public void undo() {
             matrice.getHistory().undo(matrice);
-            show(matrice);
+            showMatrice();
         }
 
         public void save() {
@@ -962,6 +953,7 @@ public class SudokuApplication {
             try {
                 MatriceAction action = new Solver(matrice).getNextAction();
                 if (action != null) {
+                    this.hint=action;
                     highlight(0);
                     for (MatriceZone zone : action.getHints()) {
                         for (Cell cell : zone.getCells()) {
@@ -981,6 +973,13 @@ public class SudokuApplication {
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
+            }
+
+        }
+
+        public void applyAction(MatriceAction action) {
+            if (action != null) {
+                action.apply(matrice);
             }
 
         }

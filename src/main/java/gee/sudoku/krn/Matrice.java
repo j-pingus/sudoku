@@ -23,18 +23,15 @@ import java.util.Vector;
  */
 public class Matrice implements Cloneable {
 
-
     Status status = Status.UNSOLVED;
 
-    ;
     char reference[];
     Cell cells[][];
     MatriceZone rows[];
     MatriceZone cols[];
     MatriceZone squares[][];
     boolean throwing = true;
-    MatriceHistory history;
-    boolean historyOn = true;
+    private MatriceHistory history;
 
     public Matrice(int size) {
         reference = new char[]{'1', '2', '3', '4', '5', '6', '7', '8', '9'};
@@ -62,23 +59,12 @@ public class Matrice implements Cloneable {
                 squares[row / ss][col / ss].addCell(cells[row][col]);
             }
         }
+        setHistory(new MatriceHistory());
+
     }
 
     public Status getStatus() {
         return status;
-    }
-
-    boolean isHistoryOn() {
-        return historyOn;
-    }
-
-    void setHistoryOn(boolean historyOn) {
-        this.historyOn = historyOn;
-    }
-
-    public void log(ActionType action, CellReference ref, int value) {
-        if (history != null && historyOn)
-            history.log(action, ref, value);
     }
 
     public Cell getCell(CellReference ref) {
@@ -152,7 +138,7 @@ public class Matrice implements Cloneable {
     public void init(int values[][]) {
         for (int i = 0; i < values.length; i++)
             for (int j = 0; j < values[i].length; j++) {
-                setValue(i, j, values[i][j]);
+                new MatriceAction(Strategies.HUMAN).setValue(this, new CellReference(i, j), values[i][j]).apply(this);
             }
     }
 
@@ -287,162 +273,9 @@ public class Matrice implements Cloneable {
             this.reference[i] = reference.charAt(i);
     }
 
-    public void setValue(Cell c, int value) {
-        setValue(c.getRow(), c.getCol(), value);
-    }
-
-    public void setValue(int row, int col, int value) {
-        if (value > 0) {
-            if (cells[row][col].hasChoice(value)) {
-                removeOtherChoices(cells[row][col], value);
-                cells[row][col].setValue(value);
-                log(ActionType.SET_VALUE, cells[row][col], value);
-                removeRowChoices(row, value);
-                removeColChoices(col, value);
-                removeSquareChoices(row, col, value);
-            }
-        } else {
-            unsetValue(row, col);
-        }
-    }
-
-    public void unsetValue(int row, int col, int value) {
-        if (value > 0) {
-            cells[row][col].unsetValue();
-            addRowChoices(row, value);
-            addColChoices(col, value);
-            addSquareChoices(row, col, value);
-        } else {
-            unsetValue(row, col);
-        }
-    }
-
-    public boolean addChoice(int row, int col, int value) {
-        if (cells[row][col].addChoice(value)) {
-            log(ActionType.ADD_OPTION, cells[row][col], value);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean removeChoice(int row, int col, int value) {
-        if (cells[row][col].removeChoice(value)) {
-            log(ActionType.REMOVE_OPTION, cells[row][col], value);
-            return true;
-        }
-        return false;
-    }
-
-    public void unsetValue(int row, int col) {
-        int value = cells[row][col].getValue();
-        if (value != 0) {
-            log(ActionType.UNSET_VALUE, cells[row][col], value);
-            cells[row][col].unsetValue();
-            // addRowChoices(row, value);
-            // addColChoices(col, value);
-            // addSquareChoices(row, col, value);
-        }
-    }
-
-    public boolean removeChoice(int value, Cell... cells) {
-        boolean ret = false;
-        for (Cell cell : cells) {
-            if (removeChoice(cell.row, cell.col, value)) {
-                ret |= true;
-            }
-        }
-        return ret;
-    }
-
-    public boolean addChoice(int value, Cell... cells) {
-        boolean ret = false;
-        for (Cell cell : cells) {
-            if (addChoice(cell.row, cell.col, value)) {
-                ret |= true;
-            }
-        }
-        return ret;
-    }
-
-    public boolean removeOtherChoices(Cell cell, int... values) {
-        boolean ret = false;
-        for (int value : cell.getOtherChoices(values))
-            ret = removeChoice(value, cell) | ret;
-        return ret;
-    }
-
-    public boolean removeChoices(Cell cell, int... values) {
-        boolean ret = false;
-        for (int value : values)
-            ret = removeChoice(value, cell) | ret;
-        return ret;
-    }
-
-    public boolean addChoices(Cell cell, int... values) {
-        boolean ret = false;
-        for (int value : values)
-            ret = addChoice(value, cell) | ret;
-        return ret;
-    }
-
-    public boolean removeSquareChoices(int row, int col, int... values) {
-        return removeSquareChoices(row, col, true, values);
-    }
-
-    boolean removeSquareChoices(int row, int col, boolean withHistory,
-                                int... values) {
-        boolean ret = false;
-        for (Cell cell : getSquares()[row / 3][col / 3].getCells())
-            ret = removeChoices(cell, values) | ret;
-        return ret;
-    }
-
-    public boolean removeRowChoices(int row, int... values) {
-        boolean ret = false;
-        for (Cell cell : getRows()[row].getCells())
-            ret = removeChoices(cell, values) | ret;
-        return ret;
-    }
-
-    boolean removeColChoices(int col, int... values) {
-        boolean ret = false;
-        for (Cell cell : getCols()[col].getCells())
-            ret = removeChoices(cell, values) | ret;
-        return ret;
-    }
-
-    public boolean addSquareChoices(int row, int col, int... values) {
-        boolean ret = false;
-        for (Cell cell : getSquares()[row / 3][col / 3].getCells())
-            ret = addChoices(cell, values) | ret;
-        return ret;
-    }
-
-    public boolean addRowChoices(int row, int... values) {
-        boolean ret = false;
-        for (Cell cell : getRows()[row].getCells())
-            ret = addChoices(cell, values) | ret;
-        return ret;
-    }
-
-    public boolean addColChoices(int col, int... values) {
-        boolean ret = false;
-        for (Cell cell : getCols()[col].getCells())
-            ret = addChoices(cell, values) | ret;
-        return ret;
-    }
-
-    public boolean isThrowing() {
-        return throwing;
-    }
 
     public void setThrowing(boolean throwing) {
         this.throwing = throwing;
-    }
-
-    public void commit(Strategies s) {
-        if (history != null)
-            history.commit(s);
     }
 
     public CellReference[] getPairs() {

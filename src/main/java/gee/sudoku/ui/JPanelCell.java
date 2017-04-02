@@ -89,7 +89,6 @@ public class JPanelCell extends JPanel {
 				hint.setForeground(Color.white);
 			hints[4].setForeground(Color.BLUE);
 			hints[4].setText("" + value);
-			System.out.println(hints[4].getFont().getSize());
 			hints[4].setFont(new Font("Dialog", Font.BOLD, 18));
 			this.value = value;
 			highlight(lastHighlightedValue);

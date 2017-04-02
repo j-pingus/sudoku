@@ -57,6 +57,10 @@ import javax.swing.filechooser.FileFilter;
  */
 public class SudokuFrame extends Frame implements ComponentListener,
 		KeyListener, SudokuPresenter {
+	public void setMatrice(Matrice read) {
+		this.mat=read;
+	}
+
 	enum Mode {
 		SET_VALUE, SET_OPTION;
 	};
@@ -112,14 +116,14 @@ public class SudokuFrame extends Frame implements ComponentListener,
 	void initSudoku() {
 		clear();
 		mat.setReferenceString("123456789");
-		show(mat);
+		showMatrice();
 		cells[0][0].requestFocus();
 	}
 
 	void clear() {
 		mat = new Matrice(9);
 		mat.setReferenceString("         ");
-		show(mat);
+		showMatrice();
 		cells[0][0].requestFocus();
 	}
 
@@ -128,7 +132,8 @@ public class SudokuFrame extends Frame implements ComponentListener,
 		Point p = getLocation();
 		frame.setLocation(p.x + 20, p.y + 20);
 		try {
-			frame.show((Matrice) mat.clone());
+			frame.setMatrice((Matrice) mat.clone());
+			frame.showMatrice();
 		} catch (CloneNotSupportedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -158,7 +163,7 @@ public class SudokuFrame extends Frame implements ComponentListener,
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 			mat = MatriceFile.read(file);
-			show(mat);
+			showMatrice();
 			// This is where a real application would open the file.
 		}
 
@@ -272,13 +277,12 @@ public class SudokuFrame extends Frame implements ComponentListener,
 		return references[val - 1].getText();
 	}
 
-	public void show(Matrice m) {
-		mat = m;
+	public void showMatrice() {
 		int i = 0;
-		for (char ref : m.getReference())
+		for (char ref : mat.getReference())
 			references[i++].setText(ref == ' ' ? "" : "" + ref);
 		int row = 0;
-		for (Cell lines[] : m.getCells()) {
+		for (Cell lines[] : mat.getCells()) {
 			int col = 0;
 			for (Cell cell : lines) {
 				if (cell.isSet()) {
@@ -302,7 +306,7 @@ public class SudokuFrame extends Frame implements ComponentListener,
 		}
 		String title;
 		try {
-			title = "Status : " + m.getStatus();
+			title = "Status : " + mat.getStatus();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -321,9 +325,6 @@ public class SudokuFrame extends Frame implements ComponentListener,
 
 	public void keyTyped(KeyEvent arg0) {
 		// TODO Auto-generated method stub
-		System.out.println(arg0);
-		System.out.println((int) arg0.getKeyChar());
-		System.out.println(arg0.getModifiers());
 		if (((int) arg0.getModifiers() & 2) == 2) {
 			// Control is pressed
 			if (arg0.getKeyChar() == 15) {
@@ -369,6 +370,8 @@ public class SudokuFrame extends Frame implements ComponentListener,
 			mode = Mode.SET_OPTION;
 			modeLabel.setText(mode.toString());
 		} else if (arg0.getComponent() instanceof CellField) {
+			System.err.println("Removed code ");
+			/*
 			CellField cell = (CellField) arg0.getComponent();
 			int row = cell.getRow();
 			int col = cell.getCol();
@@ -391,7 +394,7 @@ public class SudokuFrame extends Frame implements ComponentListener,
 				}
 				show(mat);
 				arg0.getComponent().transferFocus();
-			}
+			}*/
 		}
 	}
 

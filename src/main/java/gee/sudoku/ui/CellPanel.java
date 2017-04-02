@@ -68,7 +68,6 @@ public class CellPanel extends Panel {
 	}
 	public void setSize(int size) {
 		this.size = size;
-		System.out.println(size);
 		setPreferredSize(new Dimension(size, size));
 		setMinimumSize(new Dimension(size, size));
 		repaint();

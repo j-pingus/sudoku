@@ -20,7 +20,7 @@ import gee.sudoku.solver.Strategies;
  * @log
  */
 public interface SudokuPresenter {
-	public void show(Matrice m);
+	public void showMatrice();
 
 	public void kill();
 
