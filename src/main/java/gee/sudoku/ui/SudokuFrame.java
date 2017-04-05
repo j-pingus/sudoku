@@ -1,38 +1,21 @@
 package gee.sudoku.ui;
 
+import gee.sudoku.io.ExcellFile;
+import gee.sudoku.io.MatriceFile;
 import gee.sudoku.krn.Cell;
 import gee.sudoku.krn.CellReference;
 import gee.sudoku.krn.Matrice;
-import gee.sudoku.krn.MatriceHistory;
-import gee.sudoku.io.ExcellFile;
-import gee.sudoku.io.MatriceFile;
+import gee.sudoku.krn.MatriceAction;
 import gee.sudoku.solver.Solver;
 import gee.sudoku.solver.Strategies;
 
-import java.awt.AWTEvent;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Label;
-import java.awt.Panel;
-import java.awt.Point;
-import java.awt.TextField;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowEvent;
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
-
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileFilter;
 
 /**
  * Presentation layer (AWT + SWT) for matrices Handles basic commands to
@@ -62,8 +45,8 @@ public class SudokuFrame extends Frame implements ComponentListener,
 	}
 
 	enum Mode {
-		SET_VALUE, SET_OPTION;
-	};
+		SET_VALUE, SET_OPTION
+	}
 
 	Mode mode = Mode.SET_VALUE;
 
@@ -325,7 +308,7 @@ public class SudokuFrame extends Frame implements ComponentListener,
 
 	public void keyTyped(KeyEvent arg0) {
 		// TODO Auto-generated method stub
-		if (((int) arg0.getModifiers() & 2) == 2) {
+		if ((arg0.getModifiers() & 2) == 2) {
 			// Control is pressed
 			if (arg0.getKeyChar() == 15) {
 				// CTRL + O
@@ -352,7 +335,6 @@ public class SudokuFrame extends Frame implements ComponentListener,
 			}
 			if (arg0.getKeyChar() == 18) {
 				Solver solve = new Solver(mat);
-				solve.setSilent(false);
 				try {
 					solve.solve();
 				} catch (Exception e) {
@@ -551,5 +533,11 @@ public class SudokuFrame extends Frame implements ComponentListener,
 		int answer = JOptionPane.showConfirmDialog(this, s.toString(),
 				"sudoku", JOptionPane.OK_CANCEL_OPTION);
 		return answer == JOptionPane.OK_OPTION;
+	}
+
+	@Override
+	public void removeOption(CellReference ref, int option) {
+		new MatriceAction(Strategies.GUESSING_FIRST).removeChoices(mat, ref, option).apply(mat);
+		showMatrice();
 	}
 }

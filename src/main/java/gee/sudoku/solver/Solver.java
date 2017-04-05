@@ -1,9 +1,7 @@
 package gee.sudoku.solver;
 
-import gee.math.Combinatory;
 import gee.sudoku.io.MatriceFile;
 import gee.sudoku.krn.*;
-import gee.sudoku.krn.Matrice.Status;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,9 +32,7 @@ import java.util.Vector;
 public class Solver {
     Matrice mat;
     List<Strategy> strategies = new ArrayList<Strategy>();
-    boolean guessing = true;
     Vector<Strategies> appliedStrategies;
-    boolean silent = true;
 
     private Solver() {
         appliedStrategies = new Vector<Strategies>();
@@ -56,8 +52,6 @@ public class Solver {
         Matrice mat = sudoku.exists() ? MatriceFile.read(sudoku)
                 : new MatriceFile().getSudokuSample();
         Solver solver = new Solver(mat);
-        solver.setSilent(false);
-        solver.setGuessing(false);
         MatriceHistory logger = new MatriceHistory();
         try {
             mat.setHistory(logger);
@@ -90,7 +84,7 @@ public class Solver {
 
     public void loop() {
         MatriceAction matriceAction;
-        while ((matriceAction = getNextAction()) != null) ;
+        while ((matriceAction = getNextAction()) != null)
         {
             matriceAction.apply(mat);
         }
@@ -98,7 +92,10 @@ public class Solver {
 
     public MatriceAction getNextAction() {
         for (Strategy strategy : strategies) {
+            long start = System.currentTimeMillis();
+            System.out.println(strategy.getClass().getSimpleName());
             MatriceAction matriceAction = strategy.getAction(mat);
+            System.out.println(strategy.getClass().getSimpleName() + " " + (System.currentTimeMillis() - start));
             if (matriceAction != null) {
                 return matriceAction;
             }
@@ -106,60 +103,10 @@ public class Solver {
         return null;
     }
 
-    public boolean confirmGuess() {
-        return guessing;
-    }
 
-    public Matrice solve() throws Exception {
-        Matrice ret = null;
+    public Matrice.Status solve() throws Exception {
         loop();
-        if (mat.getStatus() == Status.UNSOLVED && confirmGuess()) {
-            try {
-                Matrice mat2 = (Matrice) mat.clone();
-                Cell c1 = chooseCell(mat);
-                if (c1 != null) {
-                    // System.out.print(c1.toStringExtended());
-                    //mat.setValue(c1, c1.getChoices()[0]);
-                    //mat.commit(Strategies.GUESSING_FIRST);
-                    // System.out.println(" --> " + c1);
-                    mat.setThrowing(false);
-                    c1 = chooseCell(mat2);
-                    // System.out.println(c1.toStringExtended());
-                    //mat2.setValue(c1, c1.getChoices()[1]);
-                    //mat2.commit(Strategies.GUESSING_SECOND);
-                    mat2.setThrowing(false);
-                    Solver solver = new Solver(mat2);
-                    solver.setSilent(isSilent());
-                    solver.appliedStrategies.addAll(appliedStrategies);
-                    //    solver.setPresentation(presentation.duplicate());
-                    loop();
-                    solver.loop();
-                    if (mat2.getStatus() == Status.SOLVED)
-                        ret = mat2;
-                    if (mat.getStatus() == Status.SOLVED)
-                        ret = mat;
-                    if (mat2.getStatus() == Status.SCREWED) {
-                        //  solver.killPresentation();
-                    }
-                    if (mat.getStatus() == Status.SCREWED) {
-                        //killPresentation();
-                        mat = mat2;
-                    }
-                }
-            } catch (CloneNotSupportedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        if (ret == null)
-            ret = mat;
-        if (ret.getStatus() == Status.SOLVED && !silent) {
-            for (Strategies s : appliedStrategies) {
-                System.out.print(s + ",");
-            }
-            System.out.println("");
-        }
-        return ret;
+        return mat.check();
     }
 
     public Cell chooseCell(Matrice mat) {
@@ -170,24 +117,8 @@ public class Solver {
         return null;
     }
 
-    public boolean isGuessing() {
-        return guessing;
-    }
-
-    public void setGuessing(boolean guessing) {
-        this.guessing = guessing;
-    }
-
     public Vector<Strategies> getAppliedStrategies() {
         return appliedStrategies;
-    }
-
-    public boolean isSilent() {
-        return silent;
-    }
-
-    public void setSilent(boolean silent) {
-        this.silent = silent;
     }
 
 }

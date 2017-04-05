@@ -24,15 +24,12 @@ import java.util.Vector;
 public class Matrice implements Cloneable {
 
     Status status = Status.UNSOLVED;
-
     char reference[];
     Cell cells[][];
     MatriceZone rows[];
     MatriceZone cols[];
     MatriceZone squares[][];
-    boolean throwing = true;
     private MatriceHistory history;
-
     public Matrice(int size) {
         reference = new char[]{'1', '2', '3', '4', '5', '6', '7', '8', '9'};
         // SquareSize
@@ -72,34 +69,24 @@ public class Matrice implements Cloneable {
     }
 
     /**
-     * checks the status of the matrice.
-     *
-     * @throws Exception
-     * @see getStatus for the result of the check.
-     */
-    public void check() throws Exception {
-        check(throwing);
-    }
-
-    /**
      * Checks the completeness of a matrice
      *
-     * @param throwing
      * @throws Exception
      * @see getStatus for the result of the check.
      */
-    public void check(boolean throwing) throws Exception {
+    public Status check() throws Exception {
         boolean ret = true;
         for (MatriceZone lines[] : squares) {
-            ret = ret && check(lines, throwing);
+            ret = ret && check(lines);
         }
-        ret = ret && check(rows, throwing);
-        ret = ret && check(cols, throwing);
+        ret = ret && check(rows);
+        ret = ret && check(cols);
         if (ret == true)
             status = Status.SOLVED;
+        return status;
     }
 
-    public boolean check(MatriceZone zones[], boolean throwing)
+    public boolean check(MatriceZone zones[])
             throws Exception {
         for (MatriceZone zone : zones) {
             for (int value = 1; value <= 9; value++) {
@@ -107,12 +94,6 @@ public class Matrice implements Cloneable {
                 switch (val) {
                     case 0:
                         if (zone.countChoice(value) == 0) {
-                            if (throwing)
-                                throw new Exception(
-                                        String
-                                                .format(
-                                                        "Value %d found %d times in %s no options left for that value",
-                                                        value, val, zone.getName()));
                             status = Status.SCREWED;
                             return false;
                         }
@@ -122,10 +103,6 @@ public class Matrice implements Cloneable {
                         // Ok continue
                         break;
                     default:
-                        if (throwing)
-                            throw new Exception(String.format(
-                                    "Value %d found %d times in %s", value, val,
-                                    zone.getName()));
                         status = Status.SCREWED;
                         return false;
                 }
@@ -273,11 +250,6 @@ public class Matrice implements Cloneable {
             this.reference[i] = reference.charAt(i);
     }
 
-
-    public void setThrowing(boolean throwing) {
-        this.throwing = throwing;
-    }
-
     public CellReference[] getPairs() {
         Vector<CellReference> ret = new Vector<CellReference>();
         for (MatriceZone row : getRows()) {
@@ -323,7 +295,18 @@ public class Matrice implements Cloneable {
         return squares[ref.getRow() / 3][ref.getCol() / 3];
     }
 
+    public Cell findFirstPair() {
+        for (MatriceZone row : getRows()) {
+            for (Cell cell : row.getCells()) {
+                if (cell.countChoices() == 2) {
+                    return cell;
+                }
+            }
+        }
+        return null;
+    }
+
     public enum Status {
-        UNSOLVED, SOLVED, SCREWED;
+        UNSOLVED, SOLVED, SCREWED
     }
 }

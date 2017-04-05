@@ -1,13 +1,11 @@
 package gee.sudoku.ui;
 
 import gee.sudoku.krn.CellReference;
-import gee.sudoku.krn.Matrice;
 import gee.sudoku.solver.Strategies;
 
 /**
- * 
  * @author Even
- * @version $Revision: 1.2 $ 
+ * @version $Revision: 1.2 $
  * @log $Log: SudokuPresenter.java,v $
  * @log Revision 1.2  2009/09/30 21:40:31  gev
  * @log news
@@ -20,15 +18,15 @@ import gee.sudoku.solver.Strategies;
  * @log
  */
 public interface SudokuPresenter {
-	public void showMatrice();
+    void showMatrice();
 
-	public void kill();
+    void kill();
 
-	public SudokuPresenter duplicate();
+    SudokuPresenter duplicate();
 
-	public void showMessage(Strategies s, CellReference... cellReferences);
+    void showMessage(Strategies s, CellReference... cellReferences);
 
-	public boolean confirmMessage(Strategies s,
-			CellReference... cellReferences);
+    boolean confirmMessage(Strategies s, CellReference... cellReferences);
 
+    void removeOption(CellReference ref, int option);
 }

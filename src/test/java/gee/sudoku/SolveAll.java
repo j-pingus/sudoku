@@ -1,8 +1,7 @@
 package gee.sudoku;
 
-import gee.sudoku.krn.Matrice;
-import gee.sudoku.krn.Matrice.Status;
 import gee.sudoku.io.MatriceFile;
+import gee.sudoku.krn.Matrice;
 import gee.sudoku.solver.Solver;
 import gee.sudoku.solver.Strategies;
 
@@ -47,10 +46,8 @@ public class SolveAll {
 		})) {
 			Matrice mat = MatriceFile.read(sudoku);
 			Solver solver = new Solver(mat);
-			solver.setGuessing(false);
-			// solver.setSilent(false);
 			try {
-				mat = solver.solve();
+				solver.solve();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

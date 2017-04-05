@@ -19,13 +19,13 @@ import java.util.Arrays;
 public class SudokuApplication {
     private JFrame jFrame = null; // @jve:decl-index=0:visual-constraint="10,10"
 
-    ; // @jve:decl-index=0:
+    // @jve:decl-index=0:
     private JPanel jContentPane = null;
 
-    ; // @jve:decl-index=0:
+    // @jve:decl-index=0:
     private JMenuBar jJMenuBar = null;
 
-    ; // @jve:decl-index=0:
+    // @jve:decl-index=0:
     private JMenu fileMenu = null;
     private JMenu helpMenu = null;
     private JMenuItem exitMenuItem = null;
@@ -826,9 +826,21 @@ public class SudokuApplication {
             return answer == JOptionPane.OK_OPTION;
         }
 
+        @Override
+        public void removeOption(CellReference ref, int value) {
+            MatriceAction action = new MatriceAction(Strategies.GUESSING_FIRST).removeChoices(matrice, ref, value);
+            action.apply(matrice);
+            showMatrice();
+        }
+
         public SudokuPresenter duplicate() {
             JTabbedSudoku ret = new JTabbedSudoku();
             getMatriceTabbedPane().addTab("Sudoku", null, ret, null);
+            try {
+                ret.matrice = (Matrice) matrice.clone();
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
             return ret;
         }
 
@@ -900,8 +912,30 @@ public class SudokuApplication {
 
         public void solve() throws Exception {
             Solver solver = new Solver(matrice);
-            solver.setGuessing(true);
-            solver.solve();
+            Matrice.Status status = solver.solve();
+            showMatrice();
+            switch (status) {
+                case SCREWED:
+                    //Bah ... nothing more to be done here...
+                    if (getMatriceTabbedPane().getTabCount() > 1)
+                        kill();
+                    break;
+                case SOLVED:
+                    // Yeah!
+                    break;
+                case UNSOLVED:
+                    //Need to guess...
+                    Cell pair = matrice.findFirstPair();
+                    if (pair != null && confirmMessage(Strategies.GUESSING_FIRST)) {
+                        int opt1 = pair.getChoices()[0];
+                        int opt2 = pair.getChoices()[1];
+                        SudokuPresenter presenter = duplicate();
+                        presenter.removeOption(pair, opt1);
+                        removeOption(pair, opt2);
+                        solve();
+                        ((JTabbedSudoku) presenter).solve();
+                    }
+            }
         }
 
         public void redo() {
@@ -953,7 +987,7 @@ public class SudokuApplication {
             try {
                 MatriceAction action = new Solver(matrice).getNextAction();
                 if (action != null) {
-                    this.hint=action;
+                    this.hint = action;
                     highlight(0);
                     for (MatriceZone zone : action.getHints()) {
                         for (Cell cell : zone.getCells()) {

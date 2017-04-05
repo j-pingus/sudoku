@@ -1,7 +1,6 @@
 package gee.sudoku.ui;
 
 import gee.sudoku.krn.CellReference;
-import gee.sudoku.krn.Matrice;
 import gee.sudoku.solver.Strategies;
 
 /**
@@ -24,6 +23,10 @@ public class ConsolePresenter implements SudokuPresenter {
 	public boolean confirmMessage(Strategies s, CellReference... cellReferences) {
 		System.out.println(s);
 		return true;
+	}
+
+	@Override
+	public void removeOption(CellReference ref, int option) {
 	}
 
 	public SudokuPresenter duplicate() {
