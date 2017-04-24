@@ -41,12 +41,12 @@ public class HowMuchSolutions3 {
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0 };
-		sols.search(all);
+		sols.search(all,1000d);
 	}
 
 	long start;
 
-	private void search(int sudoku[]) {
+	private void search(int sudoku[],double maxSolutions ) {
 		start = System.currentTimeMillis();
 		int choices[] = new int[81];
 		for (int i = 0; i < 81; i++) {
@@ -58,12 +58,15 @@ public class HowMuchSolutions3 {
 				removeOption(choices, i, sudoku[i] - 1);
 			}
 		}
-		search(0, choices);
+		search(0, choices, maxSolutions);
 		System.out.println("Solutions : " + solutions);
 		// print();
 	}
 
-	private void search(int pos, int[] choices) {
+	private void search(int pos, int[] choices,double maxSolutions) {
+		if(maxSolutions!=-1 && maxSolutions<=solutions){
+			return;
+		}
 		if (pos == 81) {
 			solutions++;
 			if (solutions == 1 || solutions % 1000000 == 0) {
@@ -78,7 +81,7 @@ public class HowMuchSolutions3 {
 				int[] choices2 = new int[81];
 				System.arraycopy(choices, 0, choices2, 0, 81);
 				if (removeOption(choices2, pos, i)) {
-					search(pos + 1, choices2);
+					search(pos + 1, choices2, maxSolutions);
 				}
 			}
 		}
