@@ -1,47 +1,13 @@
 package gee.sudoku.branchsolver;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public class QuickSolver {
-	class Sudoku {
-		int cells[] = new int[81];
-
-		public Sudoku() {
-			cells = new int[81];
-			for (int i = 0; i < 81; i++) {
-				cells[i] = 0;
-			}
-		}
-
-		public Sudoku(int... init) {
-			this();
-			for (int i = 0; i < cells.length && i < 81; i++) {
-				this.cells[i] = init[i];
-			}
-		}
-
-		public Sudoku(Options c) {
-			this();
-			for (int i = 0; i < 81; i++) {
-				this.cells[i] = c.value(i);
-			}
-		}
-		@Override
-		public String toString() {
-			StringBuilder sb = new StringBuilder(81);
-			for(int i=0;i<81;i++){
-				sb.append(cells[i]);
-				if(i%9==8){
-					sb.append('\n');
-				}else{
-					sb.append(' ');
-				}
-			}
-			return sb.toString();
-		}
-	}
-
-	private class Options {
+	protected class Options {
 		int choices[] = new int[81];
 
 		public Options() {
@@ -110,6 +76,7 @@ public class QuickSolver {
 	int solutions = 0;
 
 	public Sudoku[] search(int sudoku[], int maxSolutions) {
+		solutions = 0;
 		Options o = new Options(sudoku);
 		Sudoku ret[] = new Sudoku[maxSolutions];
 		search(0, o, ret);
@@ -134,6 +101,27 @@ public class QuickSolver {
 				}
 			}
 		}
+	}
+
+	public Sudoku getRandom() {
+		List<Integer> pos = new ArrayList<>();
+		// Fill pos with all sudoku positions
+		for (int p = 0; p < 81; p++)
+			pos.add(p);
+		// Randomize the order
+		Collections.shuffle(pos);
+		Sudoku sudo = new Sudoku();
+		// Put numbers from 1 to 9 in random places, this will "branch" the
+		// solver towards different solutions each time
+		for (int i = 0; i < 9; i++) {
+			int p = pos.get(i);
+			sudo.cells[p] = i + 1;
+		}
+		//Based on the 9 first set numbers search for max 1000 possible solutions
+		Sudoku solutions[] = search(sudo.cells, 1000);
+		int r = new Random(System.currentTimeMillis()).nextInt(solutions.length);
+		//Select one randomly
+		return solutions[r];
 	}
 
 }
