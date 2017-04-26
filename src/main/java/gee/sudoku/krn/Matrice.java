@@ -250,7 +250,7 @@ public class Matrice implements Cloneable {
             this.reference[i] = reference.charAt(i);
     }
 
-    public CellReference[] getPairs() {
+    public Cell[] getPairs() {
         Vector<CellReference> ret = new Vector<CellReference>();
         for (MatriceZone row : getRows()) {
             for (Cell cell : row.getCells()) {
@@ -259,7 +259,7 @@ public class Matrice implements Cloneable {
                 }
             }
         }
-        return ret.toArray(new CellReference[0]);
+        return ret.toArray(new Cell[0]);
 
     }
 

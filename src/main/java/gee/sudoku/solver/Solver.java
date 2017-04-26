@@ -78,6 +78,7 @@ public class Solver {
         strategies.add(new HiddenTuple(3, Strategies.HIDDEN_TRIPLET));
         strategies.add(new HiddenTuple(4, Strategies.HIDDEN_QUAD));
         strategies.add(new Candidates());
+        strategies.add(new YWing());
         strategies.add(new XWingRow());
         strategies.add(new XWingCol());
     }

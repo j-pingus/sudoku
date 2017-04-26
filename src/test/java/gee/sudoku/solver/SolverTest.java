@@ -3,11 +3,14 @@ package gee.sudoku.solver;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import gee.sudoku.io.MatriceFile;
 import org.junit.Before;
 import org.junit.Test;
 
 import gee.sudoku.krn.Matrice;
 import gee.sudoku.krn.MatriceAction;
+
+import java.io.File;
 
 /**
  * Created by gerald on 31/03/17.
@@ -37,6 +40,7 @@ public class SolverTest {
 				new int[] { 0, 8, 1, 3, 0, 0, 5, 0, 0 }
 				// ---
 		});
+		MatriceFile.write(matrice,new File("y-wing.sudoku"));
 		Solver solver = new Solver(matrice);
 		MatriceAction action;
 		action = solver.getNextAction();
@@ -47,12 +51,13 @@ public class SolverTest {
 		assertEquals(Strategies.NAKED_PAIR, action.getStrategy());
 		action.apply(matrice);
 
+		System.out.println(matrice);
 		action = solver.getNextAction();
 		assertNotNull(action);
 		// Not implemented yet but this is the next to be applied
 		assertEquals(Strategies.Y_WING, action.getStrategy());
-		System.out.println(solver.getNextAction());
 		System.out.println(matrice);
+		System.out.println(solver.getNextAction());
 	}
 
 	@Test

@@ -24,18 +24,6 @@ import java.util.Vector;
  */
 public class MatriceZone {
 	String name;
-	public int getFirstRow(){
-		return cells.firstElement().row;
-	}
-	public int getFirstCol(){
-		return cells.firstElement().col;
-	}
-	public int getLastRow(){
-		return cells.lastElement().row;
-	}
-	public int getLastCol(){
-		return cells.lastElement().col;
-	}
 	public MatriceZone(String name) {
 		this.name = name;
 	}
@@ -44,10 +32,6 @@ public class MatriceZone {
 
 	public void addCell(Cell aCell) {
 		getCells().add(aCell);
-	}
-
-	public Cell[] getCellsArray() {
-		return cells.toArray(new Cell[0]);
 	}
 
 	public Vector<Cell> getCells() {

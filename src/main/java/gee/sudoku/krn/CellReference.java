@@ -16,10 +16,13 @@ package gee.sudoku.krn;
 public class CellReference {
     int row;
     int col;
-
+    int square;
     public CellReference(int row, int col) {
         this.row = row;
         this.col = col;
+        int squareRow = row/3;
+        int squareCol = col/3;
+        this.square= (squareRow*3)+squareCol;
     }
 
     @Override
@@ -34,7 +37,11 @@ public class CellReference {
         return col == that.col;
 
     }
-
+    public boolean isConnected(CellReference other){
+        if(other.row==this.row)return true;
+        if(other.col==this.col)return true;
+        return other.square==this.square;
+    }
     @Override
     public int hashCode() {
         int result = row;

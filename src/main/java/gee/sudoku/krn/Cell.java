@@ -139,7 +139,7 @@ public class Cell extends CellReference implements Cloneable {
 		return choices[value - 1];
 	}
 
-	public boolean hasChoices(int values[]) {
+	public boolean hasChoices(int ... values) {
 		for (int value : values)
 			if (!hasChoice(value))
 				return false;
