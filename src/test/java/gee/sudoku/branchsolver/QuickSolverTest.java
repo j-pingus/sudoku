@@ -62,10 +62,6 @@ public class QuickSolverTest {
 	@Test
 	public void searchNewGame() {
 		Sudoku sudo = s.getRandom();
-		List<Integer> pos = new ArrayList<>();
-		// Fill pos with all sudoku positions
-		for (int p = 0; p < 81; p++)
-			pos.add(p);
 		// Randomize the order
 		Collections.shuffle(pos);
 		//Try to remove each cell except if it makes the sudoku have no more unique solution
