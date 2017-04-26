@@ -3,6 +3,7 @@ package gee.sudoku.krn;
 import gee.sudoku.solver.Strategies;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -49,14 +50,6 @@ public class MatriceAction {
         }
     }
 
-    @Override
-    public String toString() {
-        StringBuilder b = new StringBuilder();
-        b.append(strategy);
-        b.append(" ");
-        b.append(steps);
-        return b.toString();
-    }
 
 
     public MatriceAction setValue(Matrice mat, CellReference ref, int value) {
@@ -164,4 +157,10 @@ public class MatriceAction {
             steps.remove(step);
         }
     }
+
+	@Override
+	public String toString() {
+		return strategy+" [hintValues="
+				+ Arrays.toString(hintValues) + ", steps=" + steps + "]";
+	}
 }
