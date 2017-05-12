@@ -54,13 +54,13 @@ public class MatriceAction {
 
     public MatriceAction setValue(Matrice mat, CellReference ref, int value) {
         if (value > 0) {
-            setHintValues(new int[]{value});
+            setHintValues(value);
             if (mat.getCell(ref).hasChoice(value)) {
                 add(new ActionStep(ActionType.SET_VALUE, ref, value));
                 removeOtherChoices(mat, ref, value);
-                removeChoices(mat, mat.getRow(ref), new int[]{value});
-                removeChoices(mat, mat.getCol(ref), new int[]{value});
-                removeChoices(mat, mat.getSquare(ref), new int[]{value});
+                removeChoices(mat, mat.getRow(ref), value);
+                removeChoices(mat, mat.getCol(ref), value);
+                removeChoices(mat, mat.getSquare(ref), value);
             }
         }
         return this;
@@ -68,7 +68,7 @@ public class MatriceAction {
 
     public MatriceAction unsetValue(Matrice mat, CellReference ref, int value) {
         if (value > 0) {
-            setHintValues(new int[]{value});
+            setHintValues(value);
             add(new ActionStep(ActionType.UNSET_VALUE, ref, value));
             addChoices(mat, ref, 1, 2, 3, 4, 5, 6, 7, 8, 9);
             addChoices(mat, mat.getRow(ref), value);
@@ -163,4 +163,10 @@ public class MatriceAction {
 		return strategy+" [hintValues="
 				+ Arrays.toString(hintValues) + ", steps=" + steps + "]";
 	}
+
+    public void doNotTouch(MatriceZone... zones) {
+        for (MatriceZone zone : zones)
+            for (Cell cell : zone.getCells())
+                doNotTouch(cell);
+    }
 }

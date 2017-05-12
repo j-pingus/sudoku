@@ -81,6 +81,7 @@ public class Solver {
         strategies.add(new YWing());
         strategies.add(new XWingRow());
         strategies.add(new XWingCol());
+        strategies.add(new SwordFish());
     }
 
     public void loop() {
