@@ -23,42 +23,43 @@ import gee.sudoku.solver.Strategies;
  */
 public class Matrice implements Cloneable {
 
-	Status status = Status.UNSOLVED;
-	char reference[];
-	Cell cells[][];
-	MatriceZone rows[];
-	MatriceZone cols[];
-	MatriceZone squares[][];
-	private MatriceHistory history;
+    Status status = Status.UNSOLVED;
+    char reference[];
+    Cell cells[][];
+    MatriceZone rows[];
+    MatriceZone cols[];
+    MatriceZone squares[][];
+    private MatriceHistory history;
 
-	public Matrice(int size) {
-		reference = new char[] { '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-		// SquareSize
-		int ss = (int) Math.sqrt(size);
-		cells = new Cell[size][size];
-		rows = new MatriceZone[size];
-		cols = new MatriceZone[size];
-		squares = new MatriceZone[ss][ss];
-		for (int row = 0; row < size; row++) {
-			rows[row] = new MatriceZone("Line " + (row + 1));
-			cols[row] = new MatriceZone("Column " + (row + 1));
+    public Matrice(int size) {
+        reference = new char[]{'1', '2', '3', '4', '5', '6', '7', '8', '9'};
+        // SquareSize
+        int ss = (int) Math.sqrt(size);
+        cells = new Cell[size][size];
+        rows = new MatriceZone[size];
+        cols = new MatriceZone[size];
+        squares = new MatriceZone[ss][ss];
+        for (int row = 0; row < size; row++) {
+            rows[row] = new MatriceZone("Line " + (row + 1));
+            cols[row] = new MatriceZone("Column " + (row + 1));
 
-			for (int col = 0; col < size; col++) {
-				if (cells[row][col] == null)
-					cells[row][col] = new Cell(size, row, col);
-				if (cells[col][row] == null)
-					cells[col][row] = new Cell(size, col, row);
-				if (squares[row % ss][col % ss] == null)
-					squares[row % ss][col % ss] = new MatriceZone(String.format(
-							"Square (%d,%d)", (row % ss) + 1, (col % ss) + 1));
-				rows[row].addCell(cells[row][col]);
-				cols[row].addCell(cells[col][row]);
-				squares[row / ss][col / ss].addCell(cells[row][col]);
-			}
-		}
-		setHistory(new MatriceHistory());
+            for (int col = 0; col < size; col++) {
+                if (cells[row][col] == null)
+                    cells[row][col] = new Cell(size, row, col);
+                if (cells[col][row] == null)
+                    cells[col][row] = new Cell(size, col, row);
+                if (squares[row % ss][col % ss] == null)
+                    squares[row % ss][col % ss] = new MatriceZone(String
+                            .format("Square (%d,%d)", (row % ss) + 1,
+                                    (col % ss) + 1));
+                rows[row].addCell(cells[row][col]);
+                cols[row].addCell(cells[col][row]);
+                squares[row / ss][col / ss].addCell(cells[row][col]);
+            }
+        }
+        setHistory(new MatriceHistory());
 
-	}
+    }
 
 	public Status getStatus() {
 		return status;

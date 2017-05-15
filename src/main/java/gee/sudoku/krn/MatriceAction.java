@@ -59,7 +59,7 @@ public class MatriceAction {
                 add(new ActionStep(ActionType.SET_VALUE, ref, value));
                 removeOtherChoices(mat, ref, value);
                 removeChoices(mat, mat.getRow(ref), new int[]{value});
-                removeChoices(mat, mat.getCol(ref), new int[]{value});
+                 removeChoices(mat, mat.getCol(ref), new int[]{value});
                 removeChoices(mat, mat.getSquare(ref), new int[]{value});
             }
         }
@@ -163,4 +163,10 @@ public class MatriceAction {
 		return strategy+" [hintValues="
 				+ Arrays.toString(hintValues) + ", steps=" + steps + "]";
 	}
+
+    public void doNotTouch(MatriceZone... zones) {
+        for (MatriceZone zone : zones)
+            for (Cell cell : zone.getCells())
+                doNotTouch(cell);
+    }
 }
