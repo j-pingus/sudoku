@@ -828,7 +828,7 @@ public class SudokuApplication {
 
         @Override
         public void removeOption(CellReference ref, int value) {
-            MatriceAction action = new MatriceAction(Strategies.GUESSING_FIRST).removeChoices(matrice, ref, value);
+            MatriceAction action = new MatriceAction(Strategies.GUESSING).removeChoices(matrice, ref, value);
             action.apply(matrice);
             showMatrice();
         }
@@ -926,7 +926,7 @@ public class SudokuApplication {
                 case UNSOLVED:
                     //Need to guess...
                     Cell pair = matrice.findFirstPair();
-                    if (pair != null && confirmMessage(Strategies.GUESSING_FIRST)) {
+                    if (pair != null && confirmMessage(Strategies.GUESSING)) {
                         int opt1 = pair.getChoices()[0];
                         int opt2 = pair.getChoices()[1];
                         SudokuPresenter presenter = duplicate();

@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FilenameFilter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -108,4 +109,43 @@ public class SolverTest {
         assertEquals(Matrice.Status.SOLVED, matrice.getStatus());
     }
 
+    @Test
+    public void measureSudoku() throws Exception{
+        File inputs[] = new File("target").listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".sudoku");
+            }
+        });
+        int count =0;
+        for(File input : inputs){
+            if(count++==100)
+                return;
+            matrice = MatriceFile.read(input);
+            Solver solver = new Solver(matrice);
+            MatriceAction best=null, action;
+            while ((action = solver.getNextAction()) != null) {
+                if( best == null || best.getStrategy().weight<action.getStrategy().weight){
+                    best=action;
+                }
+                action.apply(matrice);
+            }
+            matrice.check();
+            if(matrice.getStatus()== Matrice.Status.SOLVED){
+                move(input,"target/"+matrice.getStatus().toString()+"/"+best.getStrategy().toString());
+            }else {
+                move(input,"target/"+matrice.getStatus().toString());
+            }
+        }
+    }
+
+    private void move(File input, String s) {
+        File dest = new File(s);
+        if(!dest.exists()){
+            dest.mkdirs();
+        }
+        dest = new File(dest,input.getName());
+        input.renameTo(dest);
+        System.out.println("moved to :"+dest);
+    }
 }

@@ -1,7 +1,7 @@
 package gee.sudoku.io;
 
+import gee.sudoku.branchsolver.Sudoku;
 import gee.sudoku.krn.Matrice;
-import gee.sudoku.ui.SudokuFrame;
 
 import java.io.*;
 
@@ -37,13 +37,19 @@ public class MatriceFile {
     }
 
     public static void write(Matrice mat, OutputStream out) {
-
         try {
             DataOutputStream dos = new DataOutputStream(out);
             dos.write(mat.getValues());
             dos.writeUTF(mat.getReferenceString());
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    public static void write(Sudoku mat, OutputStream out) {
+        try {
+            DataOutputStream dos = new DataOutputStream(out);
+            dos.write(mat.getCells());
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -71,12 +77,7 @@ public class MatriceFile {
         try {
             DataInputStream dis = new DataInputStream(in);
             dis.read(buffer);
-            int values[][] = new int[size][size];
-            int b = 0;
-            for (int i = 0; i < size; i++)
-                for (int j = 0; j < size; j++)
-                    values[i][j] = (int) buffer[b++];
-            mat.init(values);
+            mat.init(buffer);
             if (dis.available() > 0)
                 mat.setReferenceString(dis.readUTF());
         } catch (FileNotFoundException e) {
@@ -89,20 +90,19 @@ public class MatriceFile {
         return mat;
     }
 
-    public static void main(String[] args) {
-        SudokuFrame frame = new SudokuFrame();
-        frame.setMatrice(read(new File("1240170504437.sudoku")));
-        frame.showMatrice();
-        frame.setVisible(true);
-    }
+    public static void write(Sudoku mat, File file) {
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            write(mat, out);
+            out.close();
+            System.out.println("file:" + file + " written");
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-    public Matrice getSudokuSample() {
-        Matrice mat = read(this.getClass().getResourceAsStream("sample.sudoku"));
-        return mat;
-    }
-
-    public Matrice getWordokuSample() {
-        Matrice mat = read(this.getClass().getResourceAsStream("sample.wordoku"));
-        return mat;
     }
 }

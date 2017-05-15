@@ -537,7 +537,7 @@ public class SudokuFrame extends Frame implements ComponentListener,
 
 	@Override
 	public void removeOption(CellReference ref, int option) {
-		new MatriceAction(Strategies.GUESSING_FIRST).removeChoices(mat, ref, option).apply(mat);
+		new MatriceAction(Strategies.GUESSING).removeChoices(mat, ref, option).apply(mat);
 		showMatrice();
 	}
 }

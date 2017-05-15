@@ -22,7 +22,7 @@ public class SwordFish implements Strategy {
             if (zones != null) {
                 MatriceAction action = new MatriceAction(Strategies.SWORDFISH, zones[1]);
                 for (MatriceZone row : zones[1])
-                    action.removeChoices(matrice, row, choice);
+                    action.removeChoices(matrice, row, new int[]{choice});
                 action.doNotTouch(zones[0]);
                 if (action.size() > 0)
                     return action;

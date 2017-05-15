@@ -44,31 +44,6 @@ public class Solver {
         this.mat = mat;
     }
 
-    public static void main(String[] args) throws Exception {
-        System.out.print("Please enter a valid path for sudoku file:");
-        Scanner scan = new Scanner(System.in);
-        String sudokuFileName = scan.next();
-        File sudoku = new File(sudokuFileName);
-        Matrice mat = sudoku.exists() ? MatriceFile.read(sudoku)
-                : new MatriceFile().getSudokuSample();
-        Solver solver = new Solver(mat);
-        MatriceHistory logger = new MatriceHistory();
-        try {
-            mat.setHistory(logger);
-            solver.solve();
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            System.out.println(mat.toStringExtended());
-            System.out.println(solver.getAppliedStrategies());
-            System.out.println(sudoku.getName());
-        }
-        mat.check();
-        System.out.println("Status?" + mat.getStatus());
-        System.out.println(mat.toStringExtended());
-        System.out.println(logger);
-    }
-
     private void registerStrategies() {
         strategies.add(new SoleOption());
         strategies.add(new NakedTuple(2, Strategies.NAKED_PAIR));
@@ -86,8 +61,7 @@ public class Solver {
 
     public void loop() {
         MatriceAction matriceAction;
-        while ((matriceAction = getNextAction()) != null)
-        {
+        while ((matriceAction = getNextAction()) != null) {
             matriceAction.apply(mat);
         }
     }

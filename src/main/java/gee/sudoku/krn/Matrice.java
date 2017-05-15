@@ -30,6 +30,7 @@ public class Matrice implements Cloneable {
     MatriceZone cols[];
     MatriceZone squares[][];
     private MatriceHistory history;
+
     public Matrice(int size) {
         reference = new char[]{'1', '2', '3', '4', '5', '6', '7', '8', '9'};
         // SquareSize
@@ -110,6 +111,12 @@ public class Matrice implements Cloneable {
 
         }
         return true;
+    }
+
+   public void init(byte... values) {
+        for (int i = 0; i < values.length; i++) {
+            new MatriceAction(Strategies.HUMAN).setValue(this, new CellReference(i/9, i%9), values[i]).apply(this);
+        }
     }
 
     public void init(int values[][]) {
