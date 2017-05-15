@@ -1,20 +1,23 @@
 package gee.sudoku.branchsolver;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import gee.sudoku.io.MatriceFile;
+import gee.sudoku.krn.Matrice;
 
 public class QuickSolverTest {
 	private final int TEST_SIZE = 1_000_000;
 	private Sudoku solutions[];
 	long start;
 	QuickSolver s;
-	List<Integer> pos ;
+	List<Integer> pos;
 
 	@Before
 	public void startTime() {
@@ -24,17 +27,19 @@ public class QuickSolverTest {
 			pos.add(p);
 		start = System.currentTimeMillis();
 		s = new QuickSolver();
-		solutions = new Sudoku[]{};
+		solutions = new Sudoku[] {};
 	}
 
 	@After
 	public void ellapsed() {
-		System.out.printf("%d solutions in %,.3f s\n", solutions.length, (System.currentTimeMillis() - start) / 1000f);
+		System.out.printf("%d solutions in %,.3f s\n", solutions.length,
+				(System.currentTimeMillis() - start) / 1000f);
 	}
 
 	@Test
 	public void test() {
-		solutions = s.search(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, TEST_SIZE);
+		solutions = s.search(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+				TEST_SIZE);
 
 	}
 
@@ -64,7 +69,8 @@ public class QuickSolverTest {
 		Sudoku sudo = s.getRandom();
 		// Randomize the order
 		Collections.shuffle(pos);
-		//Try to remove each cell except if it makes the sudoku have no more unique solution
+		// Try to remove each cell except if it makes the sudoku have no more
+		// unique solution
 		for (int i = 0; i < 81; i++) {
 			int p = pos.get(i);
 			int val = sudo.cells[p];
@@ -74,13 +80,18 @@ public class QuickSolverTest {
 			}
 		}
 		System.out.println(sudo);
+		Matrice mat = new Matrice(9);
+		mat.init(sudo.cells);
+		MatriceFile.write(mat, new File("generated.sudoku"));
 	}
+
 	@Test
 	public void searchNewEasyGame() {
 		Sudoku sudo = s.getRandom();
 		// Randomize the order
 		Collections.shuffle(pos);
-		//Try to remove each cell except if it makes the sudoku have no more unique solution
+		// Try to remove each cell except if it makes the sudoku have no more
+		// unique solution
 		for (int i = 0; i < 55; i++) {
 			int p = pos.get(i);
 			int val = sudo.cells[p];
@@ -90,5 +101,8 @@ public class QuickSolverTest {
 			}
 		}
 		System.out.println(sudo);
+		Matrice mat = new Matrice(9);
+		mat.init(sudo.cells);
+		MatriceFile.write(mat, new File("generated_easy.sudoku"));
 	}
 }
