@@ -11,7 +11,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import org.apache.log4j.Logger;
+
 public class SudokuPanelTest extends JFrame implements KeyListener {
+	private static final Logger LOG = Logger.getLogger(SudokuPanelTest.class);
 
 	private final JPanel contentPane;
 	private final SudokuPanel sudokuPanel;
@@ -22,12 +25,13 @@ public class SudokuPanelTest extends JFrame implements KeyListener {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					SudokuPanelTest frame = new SudokuPanelTest();
 					frame.setVisible(true);
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOG.error("Error", e);
 				}
 			}
 		});
@@ -111,7 +115,8 @@ public class SudokuPanelTest extends JFrame implements KeyListener {
 			int rZone = (i % 3) + zoneRow;
 			if (cZone != col && rZone != row) {
 				int posZone = (rZone * 9) + cZone;
-				if (posZone != pos && (choices[posZone] &= notmasks[val]) == 0) {
+				if (posZone != pos
+						&& (choices[posZone] &= notmasks[val]) == 0) {
 					return false;
 				}
 			}
@@ -119,14 +124,17 @@ public class SudokuPanelTest extends JFrame implements KeyListener {
 		return true;
 	}
 
+	@Override
 	public void keyTyped(KeyEvent e) {
 
 	}
 
+	@Override
 	public void keyPressed(KeyEvent e) {
 
 	}
 
+	@Override
 	public void keyReleased(KeyEvent e) {
 		double solutions = countSolutions(sudokuPanel.getSudoku());
 		if (solutions > 1000D) {

@@ -10,7 +10,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
+import org.apache.log4j.Logger;
+
 public class SudokuPanel extends JPanel implements KeyListener {
+	private static final Logger LOG = Logger.getLogger(SudokuPanel.class);
 	private int pos = 0;
 	JLabel lblZone[];
 
@@ -43,13 +46,15 @@ public class SudokuPanel extends JPanel implements KeyListener {
 		moveEditPosition(0);
 	}
 
+	@Override
 	public void keyPressed(KeyEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
 
+	@Override
 	public void keyReleased(KeyEvent arg0) {
-		System.out.println("Key released " + arg0);
+		LOG.debug("Key released " + arg0);
 		if (arg0.getKeyCode() == KeyEvent.VK_RIGHT) {
 			moveEditPosition(1);
 		}
@@ -71,8 +76,9 @@ public class SudokuPanel extends JPanel implements KeyListener {
 		lblZone[pos].setBackground(Color.GREEN);
 	}
 
+	@Override
 	public void keyTyped(KeyEvent arg0) {
-		System.out.println("Key typed " + arg0);
+		LOG.debug("Key typed " + arg0);
 		if (arg0.getKeyChar() >= '1' && arg0.getKeyChar() <= '9') {
 			lblZone[pos].setText("" + arg0.getKeyChar());
 			moveEditPosition(1);

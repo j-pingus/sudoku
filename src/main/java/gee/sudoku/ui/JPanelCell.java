@@ -1,18 +1,21 @@
 package gee.sudoku.ui;
 
-import java.awt.GridBagLayout;
-import javax.swing.JPanel;
-import java.awt.Dimension;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
-
-import javax.swing.JLabel;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import org.apache.log4j.Logger;
+
 public class JPanelCell extends JPanel {
+	private static final Logger LOG = Logger.getLogger(JPanelCell.class);
 	Color normal = new Color(153, 153, 255); // @jve:decl-index=0:
 	Color disabled = new Color(227, 227, 255); // @jve:decl-index=0:
 	Color highlighted = new Color(255, 255, 51); // @jve:decl-index=0:
@@ -96,6 +99,7 @@ public class JPanelCell extends JPanel {
 				cellListener.setValue(row, col, value);
 		}
 	}
+
 	void unsetValue(int value, boolean propagate) {
 		if (this.value != -1) {
 			for (JLabel hint : hints)
@@ -104,7 +108,7 @@ public class JPanelCell extends JPanel {
 			hints[4].setForeground(Color.BLUE);
 			hints[4].setText("5");
 			hints[4].setFont(new Font("Dialog", Font.BOLD, 12));
-			System.out.println("unset : "+setValue);
+			LOG.debug("unset : " + setValue);
 			this.value = -1;
 			highlight(lastHighlightedValue);
 			if (cellListener != null && propagate)
@@ -160,7 +164,6 @@ public class JPanelCell extends JPanel {
 	void toggleHint(int value, boolean propagate) {
 		if (this.value == -1) {
 			Color c = hints[value - 1].getForeground();
-			// System.out.println(c);
 			if (c == normal) {
 				hints[value - 1].setForeground(disabled);
 				if (cellListener != null && propagate)
@@ -188,11 +191,11 @@ public class JPanelCell extends JPanel {
 			this.value = value;
 		}
 
+		@Override
 		public void mouseClicked(MouseEvent e) {
-			// TODO Auto-generated method stub
-			System.out.printf("%d value with %s\n", value, e);
-			if(e.getClickCount()==2){
-				unsetValue(value,true);
+			LOG.debug(String.format("%d value with %s\n", value, e));
+			if (e.getClickCount() == 2) {
+				unsetValue(value, true);
 			}
 			switch (e.getButton()) {
 			case MouseEvent.BUTTON1:
@@ -206,21 +209,25 @@ public class JPanelCell extends JPanel {
 			}
 		}
 
+		@Override
 		public void mouseEntered(MouseEvent e) {
 			// TODO Auto-generated method stub
 
 		}
 
+		@Override
 		public void mouseExited(MouseEvent e) {
 			// TODO Auto-generated method stub
 
 		}
 
+		@Override
 		public void mousePressed(MouseEvent e) {
 			// TODO Auto-generated method stub
 
 		}
 
+		@Override
 		public void mouseReleased(MouseEvent e) {
 			// TODO Auto-generated method stub
 

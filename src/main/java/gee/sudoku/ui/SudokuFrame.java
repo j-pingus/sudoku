@@ -1,5 +1,30 @@
 package gee.sudoku.ui;
 
+import java.awt.AWTEvent;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Label;
+import java.awt.Panel;
+import java.awt.Point;
+import java.awt.TextField;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.util.Vector;
+
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
+
+import org.apache.log4j.Logger;
+
 import gee.sudoku.io.ExcellFile;
 import gee.sudoku.io.MatriceFile;
 import gee.sudoku.krn.Cell;
@@ -9,14 +34,6 @@ import gee.sudoku.krn.MatriceAction;
 import gee.sudoku.solver.Solver;
 import gee.sudoku.solver.Strategies;
 
-import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.Vector;
-
 /**
  * Presentation layer (AWT + SWT) for matrices Handles basic commands to
  * save/load files and resolve Sudoku
@@ -24,10 +41,10 @@ import java.util.Vector;
  * @author Even
  * @version $Revision: 1.3 $
  * @log $Log: SudokuFrame.java,v $
- * @log Revision 1.3  2009/10/28 08:16:06  gev
+ * @log Revision 1.3 2009/10/28 08:16:06 gev
  * @log from VE
  * @log
- * @log Revision 1.2  2009/09/30 21:40:31  gev
+ * @log Revision 1.2 2009/09/30 21:40:31 gev
  * @log news
  * @log
  * @log Revision 1.1 2009/07/08 11:28:58 gev
@@ -38,10 +55,12 @@ import java.util.Vector;
  * @log Revision 1.1 2009/07/01 09:41:37 gev With header
  * 
  */
-public class SudokuFrame extends Frame implements ComponentListener,
-		KeyListener, SudokuPresenter {
+public class SudokuFrame extends Frame
+		implements ComponentListener, KeyListener, SudokuPresenter {
+	private static final Logger LOG = Logger.getLogger(SudokuFrame.class);
+
 	public void setMatrice(Matrice read) {
-		this.mat=read;
+		this.mat = read;
 	}
 
 	enum Mode {
@@ -110,6 +129,7 @@ public class SudokuFrame extends Frame implements ComponentListener,
 		cells[0][0].requestFocus();
 	}
 
+	@Override
 	public SudokuPresenter duplicate() {
 		SudokuFrame frame = new SudokuFrame();
 		Point p = getLocation();
@@ -118,8 +138,7 @@ public class SudokuFrame extends Frame implements ComponentListener,
 			frame.setMatrice((Matrice) mat.clone());
 			frame.showMatrice();
 		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error("error occured", e);
 		}
 		return frame;
 	}
@@ -240,11 +259,12 @@ public class SudokuFrame extends Frame implements ComponentListener,
 					cells[row][col].setName("Cell[" + row + "][" + col + "]");
 					cells[row][col].setEditable(false);
 					cells[row][col].addKeyListener(this);
-					panelDisplay.add(cells[row][col], new GridBagConstraints(
-							col + (col / 3), row + (row / 3), 1, 1, 1.0, 1.0,
-							GridBagConstraints.PAGE_START,
-							GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0,
-							0));
+					panelDisplay.add(cells[row][col],
+							new GridBagConstraints(col + (col / 3),
+									row + (row / 3), 1, 1, 1.0, 1.0,
+									GridBagConstraints.PAGE_START,
+									GridBagConstraints.BOTH,
+									new Insets(2, 2, 2, 2), 0, 0));
 					/*
 					 * left.add(b, new GridBagConstraints(0, p++, 1, 1, 0.0,
 					 * 0.0, GridBagConstraints.PAGE_START,
@@ -260,6 +280,7 @@ public class SudokuFrame extends Frame implements ComponentListener,
 		return references[val - 1].getText();
 	}
 
+	@Override
 	public void showMatrice() {
 		int i = 0;
 		for (char ref : mat.getReference())
@@ -291,14 +312,14 @@ public class SudokuFrame extends Frame implements ComponentListener,
 		try {
 			title = "Status : " + mat.getStatus();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.warn("error occured", e);
 			title = "Coherent : " + e.getLocalizedMessage();
 		}
 		setTitle(title);
 	}
 
 	// Overridden so we can exit on System Close
+	@Override
 	protected void processWindowEvent(WindowEvent e) {
 		super.processWindowEvent(e);
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
@@ -306,6 +327,7 @@ public class SudokuFrame extends Frame implements ComponentListener,
 		}
 	}
 
+	@Override
 	public void keyTyped(KeyEvent arg0) {
 		// TODO Auto-generated method stub
 		if ((arg0.getModifiers() & 2) == 2) {
@@ -338,8 +360,7 @@ public class SudokuFrame extends Frame implements ComponentListener,
 				try {
 					solve.solve();
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					LOG.error("error occured", e);
 				}
 			}
 		} else if (arg0.getModifiers() == 8) {
@@ -351,32 +372,6 @@ public class SudokuFrame extends Frame implements ComponentListener,
 		} else if (arg0.getModifiers() == 0 && arg0.getKeyChar() == '-') {
 			mode = Mode.SET_OPTION;
 			modeLabel.setText(mode.toString());
-		} else if (arg0.getComponent() instanceof CellField) {
-			System.err.println("Removed code ");
-			/*
-			CellField cell = (CellField) arg0.getComponent();
-			int row = cell.getRow();
-			int col = cell.getCol();
-			if (arg0.getModifiers() == 0 && arg0.getKeyChar() == 127) {
-				mat.unsetValue(row, col);
-			} else if (arg0.getModifiers() == 0) {
-
-				int value = validChar(arg0.getKeyChar());
-				switch (mode) {
-				case SET_VALUE:
-					mat.setValue(row, col, value);
-					break;
-				case SET_OPTION:
-					if (mat.getCells()[row][col].hasChoice(value)) {
-						mat.removeChoice(value, mat.getCells()[row][col]);
-					} else {
-						mat.addChoice(value, mat.getCells()[row][col]);
-					}
-					break;
-				}
-				show(mat);
-				arg0.getComponent().transferFocus();
-			}*/
 		}
 	}
 
@@ -408,8 +403,8 @@ public class SudokuFrame extends Frame implements ComponentListener,
 	private String getReferenceString() {
 		String ret = "";
 		for (Label ref : references) {
-			ret += ref.getText().length() == 0 ? " " : ref.getText().substring(
-					0, 1);
+			ret += ref.getText().length() == 0 ? " "
+					: ref.getText().substring(0, 1);
 		}
 		return ret;
 	}
@@ -440,6 +435,7 @@ public class SudokuFrame extends Frame implements ComponentListener,
 		return mat;
 	}
 
+	@Override
 	public void kill() {
 		setVisible(false);
 		dispose();
@@ -448,11 +444,11 @@ public class SudokuFrame extends Frame implements ComponentListener,
 
 	public void save() {
 		if (getMatrice().getReferenceString().equals("123456789")) {
-			MatriceFile.write(getMatrice(), new File(""
-					+ System.currentTimeMillis() + ".sudoku"));
+			MatriceFile.write(getMatrice(),
+					new File("" + System.currentTimeMillis() + ".sudoku"));
 		} else {
-			MatriceFile.write(getMatrice(), new File(""
-					+ System.currentTimeMillis() + ".wordoku"));
+			MatriceFile.write(getMatrice(),
+					new File("" + System.currentTimeMillis() + ".wordoku"));
 		}
 
 	}
@@ -461,49 +457,51 @@ public class SudokuFrame extends Frame implements ComponentListener,
 		try {
 			File excel = File.createTempFile("sudoku", ".xls", new File("."));
 			ExcellFile.save(mat, excel);
-			Runtime.getRuntime().exec(
-					"rundll32 SHELL32.DLL,ShellExec_RunDLL "
-							+ excel.getAbsolutePath());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Runtime.getRuntime().exec("rundll32 SHELL32.DLL,ShellExec_RunDLL "
+					+ excel.getAbsolutePath());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error("error occured", e);
 		}
 
 	}
 
+	@Override
 	public void componentHidden(ComponentEvent e) {
 		// TODO Auto-generated method stub
 
 	}
 
+	@Override
 	public void componentMoved(ComponentEvent e) {
 		// TODO Auto-generated method stub
 
 	}
 
+	@Override
 	public void componentResized(ComponentEvent e) {
 		// TODO Auto-generated method stub
 
 	}
 
+	@Override
 	public void componentShown(ComponentEvent e) {
 		// TODO Auto-generated method stub
 
 	}
 
+	@Override
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
 
 	}
 
+	@Override
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
 
 	}
 
+	@Override
 	public void showMessage(Strategies s, CellReference... cellReferences) {
 		// TODO Auto-generated method stub
 		Color back = null;
@@ -512,7 +510,7 @@ public class SudokuFrame extends Frame implements ComponentListener,
 			cells[cellRef.getRow()][cellRef.getCol()]
 					.setBackground(Color.GREEN);
 		}
-		System.out.println(s.toString());
+		LOG.debug(s.toString());
 		if (s == Strategies.X_WING_COL || s == Strategies.X_WING_ROW) {
 			JOptionPane.showConfirmDialog(this, s.getDescription(), "sudoku",
 					JOptionPane.YES_OPTION, JOptionPane.INFORMATION_MESSAGE);
@@ -520,24 +518,26 @@ public class SudokuFrame extends Frame implements ComponentListener,
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOG.error("error occured", e);
 			}
 		}
 		for (CellReference cellRef : cellReferences)
 			cells[cellRef.getRow()][cellRef.getCol()].setBackground(back);
 	}
 
-	public boolean confirmMessage(Strategies s, CellReference... cellReferences) {
+	@Override
+	public boolean confirmMessage(Strategies s,
+			CellReference... cellReferences) {
 		// TODO Auto-generated method stub
-		int answer = JOptionPane.showConfirmDialog(this, s.toString(),
-				"sudoku", JOptionPane.OK_CANCEL_OPTION);
+		int answer = JOptionPane.showConfirmDialog(this, s.toString(), "sudoku",
+				JOptionPane.OK_CANCEL_OPTION);
 		return answer == JOptionPane.OK_OPTION;
 	}
 
 	@Override
 	public void removeOption(CellReference ref, int option) {
-		new MatriceAction(Strategies.GUESSING).removeChoices(mat, ref, option).apply(mat);
+		new MatriceAction(Strategies.GUESSING).removeChoices(mat, ref, option)
+				.apply(mat);
 		showMatrice();
 	}
 }

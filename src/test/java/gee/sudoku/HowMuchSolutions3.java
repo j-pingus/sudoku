@@ -1,10 +1,11 @@
 package gee.sudoku;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Scanner;
+
+import org.apache.log4j.Logger;
 
 public class HowMuchSolutions3 {
+	private static final Logger LOG = Logger.getLogger(HowMuchSolutions3.class);
 	int masks[] = new int[] { 1, 2, 4, 8, 16, 32, 64, 128, 256 };
 	int notmasks[] = new int[] { ~1, ~2, ~4, ~8, ~16, ~32, ~64, ~128, ~256 };
 	int alloptions = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256;
@@ -17,23 +18,23 @@ public class HowMuchSolutions3 {
 		final HowMuchSolutions3 sols = new HowMuchSolutions3();
 		int sudoku[] = new int[] {
 
-		4, 0, 0, 1, 0, 0, 0, 0, 0,
+				4, 0, 0, 1, 0, 0, 0, 0, 0,
 
-		0, 0, 0, 2, 0, 9, 0, 0, 0,
+				0, 0, 0, 2, 0, 9, 0, 0, 0,
 
-		0, 0, 0, 0, 0, 0, 6, 3, 0,
+				0, 0, 0, 0, 0, 0, 6, 3, 0,
 
-		0, 9, 5, 0, 0, 6, 0, 0, 0,
+				0, 9, 5, 0, 0, 6, 0, 0, 0,
 
-		0, 7, 0, 0, 3, 0, 0, 0, 0,
+				0, 7, 0, 0, 3, 0, 0, 0, 0,
 
-		0, 0, 0, 0, 0, 0, 1, 0, 8,
+				0, 0, 0, 0, 0, 0, 1, 0, 8,
 
-		0, 0, 9, 0, 0, 0, 0, 5, 0,
+				0, 0, 9, 0, 0, 0, 0, 5, 0,
 
-		0, 0, 0, 0, 8, 1, 0, 0, 0,
+				0, 0, 0, 0, 8, 1, 0, 0, 0,
 
-		0, 3, 7, 0, 0, 0, 0, 9, 0
+				0, 3, 7, 0, 0, 0, 0, 9, 0
 
 		};
 		int all[] = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -41,12 +42,12 @@ public class HowMuchSolutions3 {
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0 };
-		sols.search(all,1000d);
+		sols.search(all, 1000d);
 	}
 
 	long start;
 
-	private void search(int sudoku[],double maxSolutions ) {
+	private void search(int sudoku[], double maxSolutions) {
 		start = System.currentTimeMillis();
 		int choices[] = new int[81];
 		for (int i = 0; i < 81; i++) {
@@ -59,19 +60,20 @@ public class HowMuchSolutions3 {
 			}
 		}
 		search(0, choices, maxSolutions);
-		System.out.println("Solutions : " + solutions);
+		LOG.info("Solutions : " + solutions);
 		// print();
 	}
 
-	private void search(int pos, int[] choices,double maxSolutions) {
-		if(maxSolutions!=-1 && maxSolutions<=solutions){
+	private void search(int pos, int[] choices, double maxSolutions) {
+		if (maxSolutions != -1 && maxSolutions <= solutions) {
 			return;
 		}
 		if (pos == 81) {
 			solutions++;
 			if (solutions == 1 || solutions % 1000000 == 0) {
-				System.out.printf("%,.0f solutions in %,.3f s\n", solutions,
-						(System.currentTimeMillis() - start) / 1000f);
+				LOG.info(
+						String.format("%,.0f solutions in %,.3f s\n", solutions,
+								(System.currentTimeMillis() - start) / 1000f));
 				print(choices);
 			}
 			return;
@@ -88,6 +90,7 @@ public class HowMuchSolutions3 {
 	}
 
 	private void print(int[] choices) {
+		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < 81; i++) {
 			print(choices[i]);
 			System.out.print(" | ");
@@ -105,8 +108,7 @@ public class HowMuchSolutions3 {
 		int zoneRow = (row / 3) * 3;
 		for (int i = 0; i < 9; i++) {
 			int posRow = (row * 9) + i;
-			if (posRow != pos
-					&& (choices[posRow] &= notmasks[val]) == 0) {
+			if (posRow != pos && (choices[posRow] &= notmasks[val]) == 0) {
 				return false;
 			}
 			int posCol = (i * 9) + col;
@@ -128,6 +130,7 @@ public class HowMuchSolutions3 {
 	}
 
 	private void print(int val) {
+
 		for (int i = 0; i < 9; i++) {
 			if ((val & masks[i]) > 0) {
 				System.out.print((i + 1));

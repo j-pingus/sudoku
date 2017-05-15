@@ -1,6 +1,9 @@
 package gee.sudoku;
 
+import org.apache.log4j.Logger;
+
 public class HowMuchSolutions {
+	private static final Logger LOG = Logger.getLogger(HowMuchSolutions.class);
 	int matrix[][] = new int[][] { { -1, -1, -1, -1, -1, -1, -1, -1, -1, },
 			{ -1, -1, -1, -1, -1, -1, -1, -1, -1, },
 			{ -1, -1, -1, -1, -1, -1, -1, -1, -1, },
@@ -13,23 +16,26 @@ public class HowMuchSolutions {
 
 	public static void main(String[] args) {
 		HowMuchSolutions sols = new HowMuchSolutions();
-		while(!sols.search(0)){
+		while (!sols.search(0)) {
 			sols.print();
 		}
 		sols.print();
 	}
 
 	private void print() {
-
+		StringBuilder sb = new StringBuilder();
 		for (int x = 0; x < 9; x++) {
 			for (int y = 0; y < 9; y++) {
-				System.out.print(matrix[x][y] + 1);
-				if(y%3==2)System.out.print("|");
+				sb.append("" + matrix[x][y] + 1);
+				if (y % 3 == 2)
+					sb.append("|");
 			}
-			System.out.println();
-			if(x%3==2)System.out.println("---+---+---");
+			sb.append("\n");
+			if (x % 3 == 2)
+				sb.append("---+---+---\n");
 		}
-		System.out.println("------------------------------");
+		sb.append("------------------------------\n");
+		LOG.info(sb);
 	}
 
 	private boolean search(int pos) {
@@ -40,8 +46,9 @@ public class HowMuchSolutions {
 					&& !searchRow(val, pos / 9, pos % 9)
 					&& !searchZone(val, pos / 9, pos % 9)) {
 				matrix[pos / 9][pos % 9] = val;
-				boolean ret= search(pos+1);
-				if(ret)return ret;
+				boolean ret = search(pos + 1);
+				if (ret)
+					return ret;
 			}
 		}
 		matrix[pos / 9][pos % 9] = -1;
