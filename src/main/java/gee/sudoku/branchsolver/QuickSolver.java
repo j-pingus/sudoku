@@ -24,7 +24,7 @@ public class QuickSolver {
 			int p = pos.get(i);
 			sudo.cells[p] = b(i + 1);
 		}
-		LOG.debug("random seed" + sudo);
+		LOG.info("random seed" + sudo);
 		// Based on the 9 first set numbers search for max 1000 possible
 		// solutions
 		Sudoku solutions[] = search(sudo, 1000);
@@ -60,6 +60,7 @@ public class QuickSolver {
 		Sudoku mirrorV = sudoku.mirrorV();
 		Sudoku mirrorH = sudoku.mirrorH();
 		Sudoku invert = sudoku.invert();
+		Sudoku rotateh = sudoku.rotateH(-3);
 		Transfo t = Transfo.NONE;
 		int score = sudoku.score();
 		int score2 = flip.score();
@@ -85,6 +86,11 @@ public class QuickSolver {
 			t = Transfo.INVERT;
 			sudoku = invert;
 		}
+		score2 = rotateh.score();
+		if (score > score2) {
+			t = Transfo.ROTATE_H;
+			sudoku = rotateh;
+		}
 		Options o = new Options(sudoku.cells);
 		Sudoku ret[] = new Sudoku[maxSolutions];
 		int solutions = search(0, 0, o, ret, t);
@@ -97,12 +103,16 @@ public class QuickSolver {
 
 	private static int search(int solutions, int pos, Options o, Sudoku ret[],
 			Transfo t) {
+		LOG.debug("\n" + o);
 		if (ret.length <= solutions) {
 			return solutions;
 		}
 		if (pos == 81) {
 			Sudoku sol = new Sudoku(o);
 			switch (t) {
+			case ROTATE_H:
+				sol = sol.rotateH(3);
+				break;
 			case FLIP:
 				sol = sol.flip();
 				break;
@@ -161,7 +171,7 @@ public class QuickSolver {
 	}
 
 	private enum Transfo {
-		NONE, INVERT, MIRROR_V, MIRROR_H, FLIP
+		NONE, INVERT, MIRROR_V, MIRROR_H, FLIP, ROTATE_H
 	}
 
 }

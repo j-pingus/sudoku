@@ -9,7 +9,10 @@
 		  value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
 	    </layout>
 	</appender>
-
+	<logger name="gee.sudoku" additivity="false">
+		<level value="INFO"/>
+		<appender-ref ref="console" />
+	</logger>
 	<root>
 		<level value="DEBUG" />
 		<appender-ref ref="console" />

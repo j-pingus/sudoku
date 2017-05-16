@@ -27,6 +27,8 @@ public class QuickSolverTest {
 	public void ellapsed() {
 		LOG.info(String.format("%d solutions in %,.3f s\n", solutions.length,
 				(System.currentTimeMillis() - start) / 1000f));
+		if (solutions.length > 0)
+			LOG.info(solutions[0]);
 	}
 
 	@Test
@@ -60,28 +62,30 @@ public class QuickSolverTest {
 
 	@Test
 	public void testSlow() {
-		Sudoku sudo = new Sudoku(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		Sudoku sudo = new Sudoku(new byte[] {
 
-				2, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 7, 0, 0, 0,
+
+				0, 0, 0, 0, 0, 2, 0, 0, 4,
+
+				1, 6, 3, 0, 0, 0, 8, 9, 0,
+
+				0, 0, 0, 0, 0, 0, 5, 0, 0,
 
 				0, 0, 0, 0, 0, 0, 0, 0, 0,
 
-				0, 0, 0, 1, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0,
 
-				5, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0,
 
-				0, 4, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0,
 
-				0, 9, 0, 0, 0, 0, 0, 0, 0,
-
-				0, 8, 6, 0, 0, 0, 0, 0, 0,
-
-				7, 3, 0, 0, 0, 0, 0, 0, 0
+				0, 0, 0, 0, 0, 0, 0, 0, 0
 
 		});
 		LOG.info(sudo);
+		LOG.info(sudo.score());
 		solutions = s.search(sudo, 1_000);
-		LOG.info(solutions[0]);
 	}
 
 	@Test
