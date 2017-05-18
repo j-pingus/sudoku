@@ -1,25 +1,38 @@
 package gee.sudoku.branchsolver;
 
-public class Sudoku {
-	byte cells[] = new byte[81];
+import static org.junit.Assert.assertEquals;
 
-	public Sudoku() {
-		cells = new byte[81];
-		for (int i = 0; i < 81; i++) {
+public class Sudoku {
+	byte cells[];
+	int size;
+	int squaredSize;
+	int threeSquaresSize;
+
+	public Sudoku(int size) {
+		this.size = size;
+		this.squaredSize = (int) Math.sqrt(size);
+		this.threeSquaresSize = squaredSize * size;
+		cells = new byte[size * size];
+		for (int i = 0; i < cells.length; i++) {
 			cells[i] = 0;
 		}
 	}
 
-	public Sudoku(byte... init) {
-		this();
-		for (int i = 0; i < cells.length && i < 81; i++) {
+	public Sudoku(int size, byte... init) {
+		this(size);
+		for (int i = 0; i < init.length && i < 81; i++) {
 			this.cells[i] = init[i];
 		}
 	}
 
+	// Most sudoku are 9 position based, not all.
+	public Sudoku(byte... init) {
+		this(9, init);
+	}
+
 	public Sudoku(Options c) {
-		this();
-		for (int i = 0; i < 81; i++) {
+		this((int) Math.sqrt(c.choices.length));
+		for (int i = 0; i < cells.length; i++) {
 			this.cells[i] = c.value(i);
 		}
 	}
@@ -37,23 +50,25 @@ public class Sudoku {
 		return sb.toString();
 	}
 
-	@Override
-	public String toString() {
+	// This eats a lot of CPU... so don't change back to toString signature...
+	public String toStringMe() {
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < 81; i++) {
+		for (int i = 0; i < cells.length; i++) {
 			if (cells[i] > 0) {
 				sb.append(cells[i]);
 			} else {
 				sb.append(' ');
 			}
-			if (i % 9 == 8) {
+			if (i % size == (size - 1)) {
 				sb.append('\n');
-			} else if (i % 3 == 2) {
+			} else if (i % squaredSize == (squaredSize - 1)) {
 				sb.append("|");
 			} else {
 				sb.append(' ');
 			}
-			if (i < 55 && i % 27 == 26) {
+
+			if (i <= (threeSquaresSize * 2)
+					&& i % threeSquaresSize == (threeSquaresSize - 1)) {
 				sb.append("-----+-----+-----\n");
 			}
 		}
@@ -69,47 +84,119 @@ public class Sudoku {
 		return ret;
 	}
 
-	public Sudoku mirrorH() {
+	public Sudoku transform(SudokuTransformation transfo) {
 		byte dest[] = new byte[cells.length];
 		for (int i = 0; i < cells.length; i++) {
-			dest[i + (((i % 9) - 4) * -2)] = cells[i];
+			dest[transfo.newPos(i)] = cells[i];
 		}
 		return new Sudoku(dest);
 	}
 
-	public Sudoku flip() {
-		// =80-((MOD(B12;9)*9)+MOD(ROUNDDOWN(B12/9;0);9))
-		byte dest[] = new byte[cells.length];
-		for (int i = 0; i < cells.length; i++) {
-			dest[(((i % 9) * 9) + ((i / 9) % 9))] = cells[i];
-		}
-		return new Sudoku(dest);
+	/**
+	 * Lambda for transform
+	 * 
+	 * @param pos
+	 * @return
+	 */
+	public int mirrorH(int pos) {
+		assertEquals(size, 9);
+		// FIXME: figure out the values for -4 and -2 if size != 9
+		return pos + (((pos % size) - 4) * -2);
 	}
 
-	public Sudoku mirrorV() {
-		byte dest[] = new byte[cells.length];
-		for (int i = 0; i < cells.length; i++) {
-			dest[i + (((i / 9) - 4) * -18)] = cells[i];
-		}
-		return new Sudoku(dest);
-
+	/**
+	 * Lambda for transform
+	 * 
+	 * @param pos
+	 * @return
+	 */
+	public int flip(int i) {
+		return (((i % size) * size) + ((i / size) % size));
 	}
 
-	public Sudoku invert() {
-		byte dest[] = new byte[cells.length];
-		for (int i = 0; i < cells.length; i++) {
-			dest[80 - i] = cells[i];
-		}
-		return new Sudoku(dest);
+	/**
+	 * Lambda for transform
+	 * 
+	 * @param pos
+	 * @return
+	 */
+	public int mirrorV(int i) {
+		assertEquals(size, 9);
+		// FIXME: figure out the values for -4 and -18 if size != 9
+		return i + (((i / size) - 4) * -18);
 	}
 
-	public Sudoku rotateH(int rowDelta) {
-		byte dest[] = new byte[cells.length];
-		for (int i = 0; i < cells.length; i++) {
-			int row = ((i / 9) + rowDelta + 9) % 9;
-			int col = i % 9;
-			dest[(row * 9) + col] = cells[i];
+	/**
+	 * Lambda for transform
+	 * 
+	 * @param pos
+	 * @return
+	 */
+	public int invert(int i) {
+		return cells.length - 1 - i;
+	}
+
+	/**
+	 * Lambda for transform
+	 * 
+	 * @param pos
+	 * @return
+	 */
+	public static int none(int i) {
+		return i;
+	}
+
+	/**
+	 * Lambda for transform
+	 * 
+	 * @param pos
+	 * @return
+	 */
+	public int rotateH(int i, int rowDelta) {
+		int row = ((i / size) + rowDelta + size) % size;
+		int col = i % size;
+		return (row * 9) + col;
+	}
+
+	/**
+	 * get possible transformations function on sudoku and their opposite in an
+	 * array of arrays [ [function,inverseFunction], [funciton2,
+	 * inverseFunciton2], ... ] Those may be used with the transform method on
+	 * sudoku
+	 * 
+	 * @return
+	 */
+	SudokuTransformation[][] getAllTransformations() {
+		return new SudokuTransformation[][] { { this::flip, this::flip },
+				{ this::mirrorV, new SudokuTransformation() {
+					// Just showing off that Lambda brings nothing to the
+					// concept except syntax sugar...
+					@Override
+					public int newPos(int pos) {
+						return mirrorV(pos);
+					}
+
+				} }, { this::mirrorH, this::mirrorH },
+				{ this::invert, this::invert },
+				{ (i) -> this.rotateH(i, -squaredSize),
+						(i) -> this.rotateH(i, squaredSize) },
+				{ (i) -> this.rotateH(i, squaredSize),
+						(i) -> this.rotateH(i, -squaredSize) }
+
+		};
+	}
+
+	public SudokuTransformation[] getLowScoreTransformations() {
+		int score = score();
+		SudokuTransformation ret[] = { Sudoku::none, Sudoku::none };
+		for (SudokuTransformation transfo[] : getAllTransformations()) {
+			Sudoku sudo = transform(transfo[0]);
+			int score2 = sudo.score();
+			if (score2 < score) {
+				score = score2;
+				ret = transfo;
+			}
 		}
-		return new Sudoku(dest);
+		return ret;
 	}
 }

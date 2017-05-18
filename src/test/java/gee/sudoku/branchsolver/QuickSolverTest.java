@@ -64,6 +64,12 @@ public class QuickSolverTest {
 	public void testSlow() {
 		Sudoku sudo = new Sudoku(new byte[] {
 
+				0, 0, 0, 0, 0, 0, 0, 0, 0,
+
+				0, 0, 0, 0, 0, 0, 0, 0, 0,
+
+				0, 0, 0, 0, 0, 0, 0, 0, 0,
+
 				0, 0, 0, 0, 0, 7, 0, 0, 0,
 
 				0, 0, 0, 0, 0, 2, 0, 0, 4,
@@ -74,13 +80,35 @@ public class QuickSolverTest {
 
 				0, 0, 0, 0, 0, 0, 0, 0, 0,
 
-				0, 0, 0, 0, 0, 0, 0, 0, 0,
-
-				0, 0, 0, 0, 0, 0, 0, 0, 0,
-
-				0, 0, 0, 0, 0, 0, 0, 0, 0,
-
 				0, 0, 0, 0, 0, 0, 0, 0, 0
+
+		});
+		LOG.info(sudo);
+		LOG.info(sudo.score());
+		solutions = s.search(sudo, 1_000);
+	}
+
+	@Test
+	public void testSlow2() {
+		Sudoku sudo = new Sudoku(new byte[] {
+
+				0, 8, 0, 0, 5, 0, 0, 0, 0,
+
+				6, 0, 0, 9, 0, 2, 0, 0, 4,
+
+				0, 0, 2, 0, 0, 0, 0, 8, 0,
+
+				0, 0, 0, 0, 3, 0, 0, 0, 0,
+
+				5, 0, 6, 0, 2, 0, 3, 0, 9,
+
+				1, 0, 0, 0, 9, 0, 5, 0, 0,
+
+				0, 1, 0, 0, 0, 0, 0, 2, 0,
+
+				0, 0, 0, 7, 0, 3, 0, 0, 0,
+
+				0, 0, 0, 0, 6, 0, 0, 9, 0
 
 		});
 		LOG.info(sudo);

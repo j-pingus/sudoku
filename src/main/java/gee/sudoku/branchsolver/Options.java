@@ -87,8 +87,8 @@ class Options {
 		return o;
 	}
 
-	@Override
-	public String toString() {
+	// This eats a lot of CPU... so don't change back to toString signature...
+	public String toStringMe() {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < choices.length; i++) {
 			sb.append(toString(choices[i]));

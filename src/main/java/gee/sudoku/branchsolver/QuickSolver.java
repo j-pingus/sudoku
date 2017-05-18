@@ -11,6 +11,24 @@ public class QuickSolver {
 	private static final Logger LOG = Logger.getLogger(QuickSolver.class);
 
 	public static Sudoku getRandom() {
+		Sudoku s = getRandom(10);
+		if (s != null) {
+			int t2 = new Random(System.currentTimeMillis()).nextInt(3);
+			SudokuTransformation ts[][] = s.getAllTransformations();
+			LOG.debug("s:\n" + s);
+			for (int i = 0; i < t2; i++) {
+				int t = new Random(System.currentTimeMillis())
+						.nextInt(ts.length);
+				s = s.transform(ts[t][0]);
+				LOG.debug("transformed s:\n" + s);
+			}
+		}
+		return s;
+	}
+
+	public static Sudoku getRandom(int attempts) {
+		if (attempts == 0)
+			return null;
 		List<Integer> pos = new ArrayList<>();
 		// Fill pos with all sudoku positions
 		for (int p = 0; p < 81; p++)
@@ -24,13 +42,20 @@ public class QuickSolver {
 			int p = pos.get(i);
 			sudo.cells[p] = b(i + 1);
 		}
-		LOG.info("random seed" + sudo);
+		LOG.debug("random seed" + sudo);
 		// Based on the 9 first set numbers search for max 1000 possible
 		// solutions
+
 		Sudoku solutions[] = search(sudo, 1000);
+		if (solutions.length == 0) {
+			// Somtimes (once on 10000) it is not possible to get a solution
+			// even with only 9 seeds.
+			return getRandom(attempts - 1);
+		}
 		int r = new Random(System.currentTimeMillis())
 				.nextInt(solutions.length);
-		// Select one randomly
+		// Select one randomly and apply a random (non destructive)
+		// transformation to it
 		return solutions[r];
 	}
 
@@ -45,95 +70,47 @@ public class QuickSolver {
 		if (val == 0)
 			return;
 		sudo.cells[pos] = 0;
-		long millis = System.currentTimeMillis();
 		if (search(sudo, 2).length != 1) {
 			sudo.cells[pos] = val;
 		}
-		millis = System.currentTimeMillis() - millis;
-		if (millis > 1000) {
-			LOG.warn("taking time :" + millis);
-		}
+	}
+
+	public static int none(int i) {
+		return i;
 	}
 
 	public static Sudoku[] search(Sudoku sudoku, int maxSolutions) {
-		Sudoku flip = sudoku.flip();
-		Sudoku mirrorV = sudoku.mirrorV();
-		Sudoku mirrorH = sudoku.mirrorH();
-		Sudoku invert = sudoku.invert();
-		Sudoku rotateh = sudoku.rotateH(-3);
-		Transfo t = Transfo.NONE;
-		int score = sudoku.score();
-		int score2 = flip.score();
-		if (score > score2) {
-			t = Transfo.FLIP;
-			sudoku = flip;
-			score = score2;
-		}
-		score2 = mirrorH.score();
-		if (score > score2) {
-			t = Transfo.MIRROR_H;
-			sudoku = mirrorH;
-			score = score2;
-		}
-		score2 = mirrorV.score();
-		if (score > score2) {
-			t = Transfo.MIRROR_V;
-			sudoku = mirrorV;
-			score = score2;
-		}
-		score2 = invert.score();
-		if (score > score2) {
-			t = Transfo.INVERT;
-			sudoku = invert;
-		}
-		score2 = rotateh.score();
-		if (score > score2) {
-			t = Transfo.ROTATE_H;
-			sudoku = rotateh;
-		}
-		Options o = new Options(sudoku.cells);
+		long ts = System.currentTimeMillis();
+		SudokuTransformation transfos[] = sudoku.getLowScoreTransformations();
+		// verify which transformation has the lowest score and select it
+		Options o = new Options(sudoku.transform(transfos[0]).cells);
 		Sudoku ret[] = new Sudoku[maxSolutions];
-		int solutions = search(0, 0, o, ret, t);
+		int solutions = search(0, 0, o, ret);
 		Sudoku ret2[] = new Sudoku[solutions];
-		System.arraycopy(ret, 0, ret2, 0, solutions);
+		for (int i = 0; i < solutions; i++)
+			ret2[i] = ret[i].transform(transfos[1]);
+		if ((System.currentTimeMillis() - ts) > 700)
+			LOG.info("Searched " + (System.currentTimeMillis() - ts)
+					+ " found: " + solutions + "\n" + sudoku.toStringMe());
 		return ret2;
 	}
 
 	;
 
-	private static int search(int solutions, int pos, Options o, Sudoku ret[],
-			Transfo t) {
+	private static int search(int solutions, int pos, Options o, Sudoku ret[]) {
 		LOG.debug("\n" + o);
 		if (ret.length <= solutions) {
 			return solutions;
 		}
 		if (pos == 81) {
-			Sudoku sol = new Sudoku(o);
-			switch (t) {
-			case ROTATE_H:
-				sol = sol.rotateH(3);
-				break;
-			case FLIP:
-				sol = sol.flip();
-				break;
-			case INVERT:
-				sol = sol.invert();
-				break;
-			case MIRROR_V:
-				sol = sol.mirrorV();
-				break;
-			case MIRROR_H:
-				sol = sol.mirrorH();
-				break;
-			}
-			ret[solutions++] = sol;
+			ret[solutions++] = new Sudoku(o);
 			return solutions;
 		}
 		for (int i = 0; i < 9; i++) {
 			if (o.hasChoice(pos, i)) {
 				Options o2 = o.clone();
 				if (o2.removeOption(pos, i)) {
-					solutions = search(solutions, pos + 1, o2, ret, t);
+					solutions = search(solutions, pos + 1, o2, ret);
 				}
 			}
 		}
@@ -142,7 +119,6 @@ public class QuickSolver {
 
 	public static Sudoku newPuzzle(int removals) {
 		Sudoku sudo = getRandom();
-		LOG.debug("New random");
 		// Randomize the order
 		List<Integer> pos = getPos(81);
 		Collections.shuffle(pos);
@@ -154,10 +130,7 @@ public class QuickSolver {
 			remove(sudo, 80 - p);
 			remove(sudo, p + (((p % 9) - 4) * -2));
 			remove(sudo, p + (((p / 9) - 4) * -18));
-			if (i % 10 == 9)
-				LOG.debug("Removed...");
 		}
-		LOG.debug("done");
 		return sudo;
 	}
 
@@ -168,10 +141,6 @@ public class QuickSolver {
 		for (int p = 0; p < size; p++)
 			pos.add(p);
 		return pos;
-	}
-
-	private enum Transfo {
-		NONE, INVERT, MIRROR_V, MIRROR_H, FLIP, ROTATE_H
 	}
 
 }
