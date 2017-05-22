@@ -55,7 +55,7 @@ public class QuickSolver {
 		int r = new Random(System.currentTimeMillis())
 				.nextInt(solutions.length);
 		// Select one randomly and apply a random (non destructive)
-		// transformation to it
+		// transformation to it n
 		return solutions[r];
 	}
 
