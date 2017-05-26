@@ -1,11 +1,16 @@
 package gee.sudoku;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import org.apache.log4j.Logger;
+import org.junit.Test;
+
 import gee.sudoku.krn.Cell;
 import gee.sudoku.krn.MatriceZone;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class MatriceZoneTest {
+	private static final Logger LOG = Logger.getLogger(MatriceZoneTest.class);
 	MatriceZone test;
 
 	@Test
@@ -24,6 +29,7 @@ public class MatriceZoneTest {
 		assertEquals(1, test.findChoice(new Cell(9, 0, 0, 2, 4)).size());
 		assertTrue(true);
 	}
+
 	@Test
 	public void testFindChoiceIntArray() {
 		test = new MatriceZone("Test");
