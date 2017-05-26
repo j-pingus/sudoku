@@ -112,59 +112,47 @@ public class SolverTest {
 
 	@Test
 	public void measureSudoku() throws Exception {
-		File inputs[] = new File("target").listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".sudoku");
-			}
-		});
-		for (File input : inputs) {
-			matrice = MatriceFile.read(input);
-			Solver solver = new Solver(matrice);
-			MatriceAction best = null, action;
-			while ((action = solver.getNextAction()) != null) {
-				if (best == null || best.getStrategy().weight < action
-						.getStrategy().weight) {
-					best = action;
-				}
-				action.apply(matrice);
-			}
-			matrice.check();
-			if (matrice.getStatus() == Matrice.Status.SOLVED) {
-				move(input, "target/" + matrice.getStatus().toString() + "/"
-						+ best.getStrategy().toString());
-			} else {
-				move(input, "target/" + matrice.getStatus().toString());
-			}
+		for (File input : getSudokus("/")) {
+			measure(input);
 		}
 	}
 
 	@Test
 	public void retryMeasureSudoku() throws Exception {
-		File inputs[] = new File("target/UNSOLVED")
-				.listFiles(new FilenameFilter() {
-					@Override
-					public boolean accept(File dir, String name) {
-						return name.endsWith(".sudoku");
-					}
-				});
-		for (File input : inputs) {
-			matrice = MatriceFile.read(input);
-			Solver solver = new Solver(matrice);
-			MatriceAction best = null, action;
-			while ((action = solver.getNextAction()) != null) {
-				if (best == null || best.getStrategy().weight < action
-						.getStrategy().weight) {
-					best = action;
-				}
-				action.apply(matrice);
-			}
-			matrice.check();
-			if (matrice.getStatus() == Matrice.Status.SOLVED) {
-				move(input, "target/" + matrice.getStatus().toString() + "/"
-						+ best.getStrategy().toString());
-			}
+		for (File input : getSudokus("UNSOLVED")) {
+			measure(input);
 		}
+		for (File input : getSudokus("SOLVED/SOLE_OPTION")) {
+			measure(input);
+		}
+	}
+
+	private File[] getSudokus(String string) {
+		return new File("target", string).listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.endsWith(".sudoku");
+			}
+		});
+	}
+
+	private void measure(File input) throws Exception {
+		matrice = MatriceFile.read(input);
+		Solver solver = new Solver(matrice);
+		MatriceAction best = null, action;
+		while ((action = solver.getNextAction()) != null) {
+			if (best == null || best.getStrategy().weight < action
+					.getStrategy().weight) {
+				best = action;
+			}
+			action.apply(matrice);
+		}
+		matrice.check();
+		if (matrice.getStatus() == Matrice.Status.SOLVED) {
+			move(input, "target/" + matrice.getStatus().toString() + "/"
+					+ best.getStrategy().toString());
+		}
+
 	}
 
 	private void move(File input, String s) {

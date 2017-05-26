@@ -1,11 +1,14 @@
 package gee.sudoku.branchsolver;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
+
+import gee.sudoku.io.MatriceFile;
 
 public class QuickSolver {
 	private static final Logger LOG = Logger.getLogger(QuickSolver.class);
@@ -43,6 +46,7 @@ public class QuickSolver {
 			sudo.cells[p] = b(i + 1);
 		}
 		LOG.debug("random seed" + sudo);
+		MatriceFile.write(sudo, new File("target", "random_seed.sudoku"));
 		// Based on the 9 first set numbers search for max 1000 possible
 		// solutions
 
