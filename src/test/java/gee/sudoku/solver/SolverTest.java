@@ -110,7 +110,7 @@ public class SolverTest {
     }
 
     @Test
-    public void measureSudoku() throws Exception{
+    public void measureSudokus() throws Exception{
         File inputs[] = new File("target").listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
