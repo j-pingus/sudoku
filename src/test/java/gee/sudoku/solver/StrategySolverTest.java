@@ -57,21 +57,24 @@ public class StrategySolverTest {
                 solver = new Solver(soleOption);
         solver.solve();
         Assert.assertEquals(Matrice.Status.SOLVED, soleOption.getStatus());
-LOG.info("Solved one...");
+        LOG.info("Solved one...");
     }
+
     @Test
     public void testSolveNP() throws Exception {
         Solver
-        solver = new Solver(nakedPair);
+                solver = new Solver(nakedPair);
         solver.solve();
         Assert.assertEquals(Matrice.Status.SOLVED, nakedPair.getStatus());
     }
+
     @Test
     public void testSolveHP() throws Exception {
         Solver
-        solver = new Solver(hiddenPair);
+                solver = new Solver(hiddenPair);
         solver.solve();
     }
+
     @Test
     public void testSolveCBC() throws Exception {
         Matrice sudoku = new Matrice(9);
@@ -79,6 +82,48 @@ LOG.info("Solved one...");
                 4, 9, 6, 0, 0, 0, 2, 0, 3, 0, 6, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3,
                 7, 9, 0, 0, 8, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 8, 0, 6, 0,
                 5, 0, 2, 0, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0,
+                0);
+        Solver solver = new Solver(sudoku);
+        solver.solve();
+        Assert.assertEquals(Matrice.Status.SOLVED, sudoku.getStatus());
+
+    }
+
+    @Test
+    public void testSolveYW() throws Exception {
+        Matrice sudoku = new Matrice(9);
+        sudoku.init(7, 1, 0, 0, 0, 0, 0, 5, 8, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 9, 0, 0, 0, 6, 0, 0, 0, 3, 0, 2, 0, 3, 0, 0, 0, 0, 0, 6, 0,
+                9, 0, 4, 8, 2, 0, 0, 0, 0, 0, 0, 0, 1, 4, 0, 0, 4, 0, 3, 0, 7,
+                0, 5, 0, 6, 0, 0, 0, 0, 9, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0,
+                7);
+        Solver solver = new Solver(sudoku);
+        solver.solve();
+        Assert.assertEquals(Matrice.Status.SOLVED, sudoku.getStatus());
+
+    }
+
+    @Test
+    public void testSolveXWR() throws Exception {
+        Matrice sudoku = new Matrice(9);
+        sudoku.init(1, 2, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 8, 0, 0,
+                7, 0, 0, 8, 0, 5, 0, 3, 0, 0, 0, 0, 3, 0, 0, 0, 9, 0, 0, 7, 6,
+                2, 0, 3, 0, 0, 0, 1, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1,
+                0, 4, 0, 0, 4, 0, 0, 0, 0, 3, 0, 0, 6, 0, 5, 0, 0, 7, 0, 0, 0,
+                0);
+        Solver solver = new Solver(sudoku);
+        solver.solve();
+        Assert.assertEquals(Matrice.Status.SOLVED, sudoku.getStatus());
+
+    }
+
+    @Test
+    public void testSolveXWC() throws Exception {
+        Matrice sudoku = new Matrice(9);
+        sudoku.init(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 0, 9, 0, 2, 8,
+                0, 0, 8, 0, 0, 3, 6, 0, 4, 0, 3, 2, 0, 0, 0, 0, 0, 0, 8, 0, 4,
+                7, 0, 8, 0, 9, 3, 0, 5, 0, 0, 0, 0, 4, 0, 0, 1, 0, 0, 0, 0, 4,
+                9, 0, 6, 0, 0, 0, 0, 0, 1, 0, 5, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0,
                 0);
         Solver solver = new Solver(sudoku);
         solver.solve();
