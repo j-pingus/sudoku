@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 import org.junit.Before;
@@ -24,6 +25,7 @@ public class SolverTest {
 	@Test
 	public void testSwordFish() {
 		matrice = MatriceFile.read(new File("swordfish.sudoku"));
+		System.out.println(Arrays.toString(matrice.getValues()));
 		Solver solver = new Solver(matrice);
 		MatriceAction matriceAction = solver.getNextAction();
 		assertNotNull(matriceAction);
@@ -125,6 +127,9 @@ public class SolverTest {
 		for (File input : getSudokus("SOLVED/SOLE_OPTION")) {
 			measure(input);
 		}
+		for (File input : getSudokus("SOLVED/X_WING_COL")) {
+			measure(input);
+		}
 	}
 
 	private File[] getSudokus(String string) {
@@ -149,19 +154,22 @@ public class SolverTest {
 		}
 		matrice.check();
 		if (matrice.getStatus() == Matrice.Status.SOLVED) {
-			move(input, "target/" + matrice.getStatus().toString() + "/"
-					+ best.getStrategy().toString());
+			if(!move(input, "target/" + matrice.getStatus().toString() + "/"
+					+ best.getStrategy().toString())){
+				LOG.error("can't move "+input);
+			};
 		}
 
 	}
 
-	private void move(File input, String s) {
+	private boolean move(File input, String s) {
 		File dest = new File(s);
 		if (!dest.exists()) {
 			dest.mkdirs();
 		}
 		dest = new File(dest, input.getName());
-		input.renameTo(dest);
+		boolean ret = input.renameTo(dest);
 		LOG.info("moved to :" + dest);
+		return ret;
 	}
 }
